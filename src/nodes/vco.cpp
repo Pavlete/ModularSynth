@@ -23,7 +23,9 @@ void VCO::process()
     buf->buffer()->clear();
     for(int i = 0; i < buf->numberOfSamples(); i++)
     {
-        buf->buffer()->addSample(0,i + buf->startSamples(), m_signal.nextSample()*0.25f);
+        auto sample = m_signal.nextSample();
+        buf->buffer()->addSample(0,i + buf->startSamples(), sample*0.25f);
+        buf->buffer()->addSample(1,i + buf->startSamples(), sample*0.25f);
     }
 }
 
@@ -34,7 +36,7 @@ VCO_GUI::VCO_GUI(NodeModel& model)
 void VCO_GUI::paintContent(Graphics &g)
 {
     auto local = getLocalBounds();
-    g.setColour(juce::Colours::grey);
+    g.setColour(juce::Colours::lightgrey);
     Font f (25, Font::bold);
     g.setFont(f);
     g.drawText("VCO", getLocalBounds(), juce::Justification::centred);

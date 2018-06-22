@@ -30,9 +30,9 @@ void ModularVoice::renderNextBlock(AudioBuffer<float> &outputBuffer,
                                    int startSample,
                                    int numSamples)
 {
-   AudioBufferWrapper buff = {&outputBuffer, numSamples, startSample};
-   m_graph.proccessData(buff);
-   outputBuffer.applyGain(m_outAmpl);
+    AudioBufferWrapper buff = {&outputBuffer, numSamples, startSample};
+    m_graph.proccessData(buff);
+    outputBuffer.applyGain(m_outAmpl);
 }
 
 bool ModularVoice::isVoiceActive() const

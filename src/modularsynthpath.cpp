@@ -12,7 +12,7 @@ int ModularSynthPath::addNode(std::unique_ptr<UIAudioNode> comp, const Point<int
     {
         m_nodes.push_back(std::move(comp));
         m_nodeAdded(m_nodes.back().get(), p);
-        m_graph.connectModule(nodeId,0, nodeId - 1, 0);
+        m_nodes.back()->setNodeID(nodeId);
         return nodeId;
     }
 
@@ -31,17 +31,30 @@ int ModularSynthPath::addInitNode(std::unique_ptr<UIAudioNode> comp,
     return nodeAdded;
 }
 
-bool ModularSynthPath::addConnection(const Connector& in, const Connector& out)
+std::shared_ptr<Connection> ModularSynthPath::addConnection()
 {
-
+    m_connection.emplace_back(std::make_shared<Connection>(*this));
+    m_connectionAdded(m_connection.back().get(), {0,0});
+    return m_connection.back();
 }
 
-Connection* ModularSynthPath::startConnection(const Connector& con)
+bool ModularSynthPath::removeConnection(const std::shared_ptr<Connection> &con)
 {
-
+    auto connection = std::find(std::begin(m_connection), std::end(m_connection), con);
+    if (connection != m_connection.end())
+    {
+        m_connection.erase(connection);
+        return true;
+    }
+    return false;
 }
 
-bool ModularSynthPath::endConnection(const Connector& con)
+bool ModularSynthPath::connectNodes(int outputID, int outIndex, int intputID, int inputIndex)
 {
+    return m_graph.addConnection(outputID, outIndex, intputID, inputIndex);
+}
 
+bool ModularSynthPath::disconnectNodes(int outputID, int outIndex, int intputID, int inputIndex)
+{
+    return m_graph.removeConnection(outputID, outIndex, intputID, inputIndex);
 }

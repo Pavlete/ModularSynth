@@ -32,7 +32,7 @@ public:
             modulable->removeModule(id);
     }
 
-    bool connectModule(int outModuleId, int moduleOutput,
+    bool addConnection(int outModuleId, int moduleOutput,
                        int inModuleId, int moduleInput)
     {
         bool ret = true;
@@ -42,11 +42,13 @@ public:
         return ret;
     }
 
-    bool disconnectModule(int moduleId, int input)
+    bool removeConnection(int outModuleId, int moduleOutput,
+                          int inModuleId, int moduleInput)
     {
         bool ret;
         for (auto modulable : m_observers)
-            ret &= modulable->disconnectModule(moduleId, input);
+            ret &= modulable->removeConnection({outModuleId, moduleOutput },
+                                               {inModuleId, moduleInput});
         return ret;
     }
 

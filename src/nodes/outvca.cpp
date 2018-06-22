@@ -16,20 +16,22 @@ void OutVCA::process()
 
     for(int i = 0; i < inBuffer->numberOfSamples(); i++)
     {
-        auto nextSample = inBuffer->buffer()->getSample(0,i) * m_amplitude;
-        outBuffer->buffer()->addSample(0, i + inBuffer->startSamples(), nextSample);
+        auto nextLeftSample = inBuffer->buffer()->getSample(0,i + inBuffer->startSamples()) * m_amplitude;
+        auto nextRightSample = inBuffer->buffer()->getSample(1,i + inBuffer->startSamples()) * m_amplitude;
+        outBuffer->buffer()->addSample(0, i + outBuffer->startSamples(), nextLeftSample);
+        outBuffer->buffer()->addSample(1, i + outBuffer->startSamples(), nextRightSample);
     }
 }
 
 
 OutVCA_GUI::OutVCA_GUI(NodeModel& model)
-    :UIAudioNode (model, 2, 2)
+    :UIAudioNode (model, 1, 0)
 {}
 
 void OutVCA_GUI::paintContent(Graphics &g)
 {
     auto local = getLocalBounds();
-    g.setColour(juce::Colours::grey);
+    g.setColour(juce::Colours::lightgrey);
     Font f (25, Font::bold);
     g.setFont(f);
     g.drawText("VCA", getLocalBounds(), juce::Justification::centred);

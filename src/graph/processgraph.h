@@ -17,6 +17,19 @@ struct ConnectionPoint
 {
     int32_t nodeId;
     uint32_t portNumber;
+
+    ConnectionPoint& operator=(const ConnectionPoint& other)
+    {
+        nodeId = other.nodeId;
+        portNumber = other.portNumber;
+        return *this;
+    }
+
+    bool operator==(const ConnectionPoint& other)
+    {
+        return nodeId == other.nodeId &&
+               portNumber == other.portNumber;
+    }
 };
 
 template <class T>
@@ -91,8 +104,10 @@ public:
 
         auto edge = std::find_if(m_edges.begin(), m_edges.end(), [&](const std::shared_ptr<Edge>& n)
         {
-            return n->m_outNode == outputPoint.nodeId && n->m_outPort == outputPoint.portNumber &&
-                n->m_inNode == inputPoint.nodeId && n->m_inPort == inputPoint.portNumber;
+            return n->m_outPoint.nodeId == outputPoint.nodeId &&
+                   n->m_outPoint.portNumber == outputPoint.portNumber &&
+                   n->m_inPoint.nodeId == inputPoint.nodeId &&
+                   n->m_inPoint.portNumber == inputPoint.portNumber;
         });
 
         if(edge == m_edges.end())

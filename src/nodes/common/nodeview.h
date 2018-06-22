@@ -15,6 +15,11 @@ public:
             comp->setBounds(comp->getBounds() + p);
             this->addAndMakeVisible(comp);
         };
+
+        model.m_connectionAdded = [&](juce::Component* comp, const Point<int>&)
+        {
+            this->addAndMakeVisible(comp);
+        };
     }
 
 private:

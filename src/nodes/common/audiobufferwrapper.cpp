@@ -6,7 +6,9 @@ int AudioBufferWrapper::m_numSamples;
 AudioBufferWrapper::AudioBufferWrapper()
     : m_outputBuffer(new AudioBuffer<float>(16,1024))
     , m_selfManaged(true)
-{}
+{
+    m_outputBuffer->clear();
+}
 
 AudioBufferWrapper::AudioBufferWrapper(AudioBuffer<float> *out, int samples, int start)
     : m_outputBuffer(out)

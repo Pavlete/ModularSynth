@@ -25,7 +25,8 @@ SOURCES += \
     src/nodes/outvca.cpp \
     src/nodes/common/audiobufferwrapper.cpp \
     src/nodes/common/uiaudionode.cpp \
-    src/nodes/common/connection.cpp
+    src/nodes/common/connection.cpp \
+    src/nodes/vcf.cpp
 
 
 HEADERS += \
@@ -50,7 +51,8 @@ HEADERS += \
     src/nodes/outvca.h \
     src/nodes/common/audiobufferwrapper.h \
     src/nodes/common/uiaudionode.h \
-    src/nodes/common/connection.h
+    src/nodes/common/connection.h \
+    src/nodes/vcf.h
 
 
 

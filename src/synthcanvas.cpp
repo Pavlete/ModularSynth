@@ -1,5 +1,6 @@
 #include "synthcanvas.h"
 
+#include "nodes/vcf.h"
 #include "nodes/vco.h"
 #include "nodes/outvca.h"
 
@@ -11,8 +12,7 @@ SynthCanvas::SynthCanvas(NodeModel& path)
     addChildComponent(m_menu);
     m_menu.addElement<VCO_GUI>("VCO", "Oscillator");
 
-    path.addInitNode(std::make_unique<OutVCA_GUI>(m_synthPath), {600,100},0);
-    path.addNode(std::make_unique<VCO_GUI>(m_synthPath), {200,100});
+    path.addInitNode(std::make_unique<OutVCA_GUI>(m_synthPath), {600,100},0);   
 }
 
 void SynthCanvas::paint(Graphics &g)

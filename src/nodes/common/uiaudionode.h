@@ -11,25 +11,43 @@
 using JuceAudioNode = processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode;
 using GraphFactory = AudioGraphObservable<AudioBufferWrapper>::GraphFactory;
 
+enum class Direction
+{
+    Input,
+    Output
+};
 
 class Connector: public Component
 {
 public:
-    Connector(NodeModel& model, int index);
+    Connector(NodeModel& model, uint32_t index, Direction dir);
 
-    void mouseDrag(const MouseEvent &event) override;
+    void mouseDrag(const MouseEvent &event) override;    
+    void mouseDown(const MouseEvent &event) override;
+    void mouseUp(const MouseEvent &event) override;
+
     void paint(Graphics &g) override;
-    void resized() override;
 
     void setNodeId(int id) { m_nodeId = id; }
 
-    processGraph::ConnectionPoint getPoint();
+    processGraph::ConnectionPoint getPoint() {return {m_nodeId, m_index};}
+    Direction getDirection() {return {m_direction};}
+
+    Point<int> getCenterInCanvas();
 
 private:
     NodeModel& m_parentModel;
 
-    int m_index;
-    int m_nodeId;
+    std::weak_ptr<Connection> m_currentConnection;
+
+    int m_nodeId;    
+
+    Point<int> m_mouseDownPoint;
+    Point<int> mapToCanvas(const Point<int>& p);
+
+    const uint32_t m_index;
+    const Direction m_direction;
+
 };
 
 class UIAudioNode: public Component
