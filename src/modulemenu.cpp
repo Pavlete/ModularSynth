@@ -1,6 +1,8 @@
 #include "modulemenu.h"
 
-ModuleMenu::ModuleMenu(NodeModel& path)
+#include "nodes/common/audiographmodel.h"
+
+ModuleMenu::ModuleMenu(JuceGraphModel& path)
     : m_rootElement("")
     , m_syntPath(path)
 {
@@ -30,6 +32,7 @@ void ModuleMenu::Module::paintItem(Graphics &g, int w, int h)
 void ModuleMenu::Module::itemClicked(const MouseEvent&)
 {
     auto menu = static_cast<ModuleMenu*>(getOwnerView());
-    menu->m_syntPath.addNode(m_fact(), menu->getBoundsInParent().getPosition());
+    auto pos = menu->getBoundsInParent().getPosition();
+    menu->m_syntPath.addNode(m_fact(), pos.getX(), pos.getY());
     menu->setVisible(false);
 }

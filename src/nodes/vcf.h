@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common/uiaudionode.h"
+#include "common/juceaudionode.h"
 
 #include "../soundProc/onepolefilter.h"
 
-class VCF: public JuceAudioNode
+class VCF: public AudioGraphNode
 {
 public:
     VCF();
@@ -18,12 +18,14 @@ private:
 };
 
 
-class VCF_GUI : public UIAudioNode
+class VCF_GUI :public JuceAudioNode
 {
 public:
-    VCF_GUI(NodeModel& model);
+    VCF_GUI(JuceGraphModel& model);
 
-    virtual void paintContent(Graphics &g) override;
+    void setContent(Rectangle<int> &r) override;
 
     GraphFactory getModule() override;
+
+    TextButton m_button;
 };

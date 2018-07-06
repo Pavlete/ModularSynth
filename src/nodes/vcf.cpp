@@ -6,10 +6,8 @@ const int SignalInput = 0;
 const int SignalOutput= 0;
 }
 
-VCF::VCF() : JuceAudioNode (1,1)
-{
-
-}
+VCF::VCF() : AudioGraphNode (1,1)
+{}
 
 void VCF::setActive(float freq)
 {
@@ -35,19 +33,21 @@ void VCF::process()
     }
 }
 
-VCF_GUI::VCF_GUI(NodeModel &model)
-    :UIAudioNode (model, 1, 1)
-{
 
+//---------------------------------------------------------------------//
+
+
+VCF_GUI::VCF_GUI(JuceGraphModel &model)
+    :JuceAudioNode (model, 1, 1)
+{
+    addAndMakeVisible(m_button);
+
+    setSize(125, 125);
 }
 
-void VCF_GUI::paintContent(Graphics &g)
+void VCF_GUI::setContent(Rectangle<int> &r)
 {
-    auto local = getLocalBounds();
-    g.setColour(juce::Colours::lightgrey);
-    Font f (25, Font::bold);
-    g.setFont(f);
-    g.drawText("VCF", getLocalBounds(), juce::Justification::centred);
+    m_button.setBounds(r);
 }
 
 GraphFactory VCF_GUI::getModule()

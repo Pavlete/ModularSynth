@@ -2,24 +2,23 @@
 
 #include <JuceHeader.h>
 
-#include "nodes/common/uiaudionode.h"
-#include "nodes/common/nodemodel.h"
+#include "nodes/common/juceaudionode.h"
+
 
 class ModuleMenu: public TreeView
 {    
-    using Factory = std::function<std::unique_ptr<UIAudioNode>()>;
+    using Factory = std::function<std::unique_ptr<JuceAudioNode>()>;
     struct Category: public TreeViewItem
     {
         Category(std::string name): m_categoryName(name) {}
-        virtual ~Category() = default;
 
-        virtual bool mightContainSubItems() override { return true; }
+        bool mightContainSubItems() override { return true; }
 
-        virtual void paintItem(Graphics &g, int w, int h) override;
+        void paintItem(Graphics &g, int w, int h) override;
 
-        virtual bool canBeSelected() const override { return false; };
+        bool canBeSelected() const override { return false; }
 
-        std::string m_categoryName;
+        const std::string m_categoryName;
     };
 
     struct Module: public TreeViewItem
@@ -28,51 +27,58 @@ class ModuleMenu: public TreeView
             : m_moduleName(name)
             , m_fact(fact)
         {}
-        virtual ~Module() = default;
 
-        virtual bool mightContainSubItems() override { return false; }
+        bool mightContainSubItems() override { return false; }
 
-        virtual void paintItem(Graphics &g, int w, int h) override;
+        void paintItem(Graphics &g, int w, int h) override;
 
-        virtual bool canBeSelected() const override { return false; };
+        bool canBeSelected() const override { return false; }
 
-        virtual void itemClicked(const MouseEvent &e) override;
+        void itemClicked(const MouseEvent &e) override;
 
-        std::string m_moduleName;
-        Factory m_fact;
-
+        const std::string m_moduleName;
+        const Factory m_fact;
     };
 
 public:
-    ModuleMenu(NodeModel& flow);
+    ModuleMenu(JuceGraphModel& flow);
 
-    virtual void paint(Graphics &g) override;
+    void paint(Graphics &g) override;
 
     template<class ModuleClass>
-    void addElement(std::string name, std::string category)
-    {
-        auto root = getRootItem();
-        Category* categoryItem = nullptr;
-        for(int i = 0; i < root->getNumSubItems(); i++)
-        {
-            auto item = dynamic_cast<Category*>(root->getSubItem(i));
-            if(item && item->m_categoryName == category)
-            {
-                categoryItem = item;
-                break;
-            }
-        }
-
-        if(!categoryItem)
-        {
-            categoryItem = new Category(category);
-            root->addSubItem(categoryItem);
-        }
-
-        categoryItem->addSubItem(new Module(name, [&](){return std::make_unique<ModuleClass>(m_syntPath);}));
-    }
+    void addElement(std::string name, std::string category);
 
 private:
     Category m_rootElement;
-    NodeModel& m_syntPath;
+    JuceGraphModel& m_syntPath;
 };
+
+
+
+//---------------------------------------------------------------------------------//
+
+
+
+template<class ModuleClass>
+void ModuleMenu::addElement(std::string name, std::string category)
+{
+    auto root = getRootItem();
+    Category* categoryItem = nullptr;
+    for(int i = 0; i < root->getNumSubItems(); i++)
+    {
+        auto item = dynamic_cast<Category*>(root->getSubItem(i));
+        if(item && item->m_categoryName == category)
+        {
+            categoryItem = item;
+            break;
+        }
+    }
+
+    if(!categoryItem)
+    {
+        categoryItem = new Category(category);
+        root->addSubItem(categoryItem);
+    }
+
+    categoryItem->addSubItem(new Module(name, [&](){return std::make_unique<ModuleClass>(m_syntPath);}));
+}

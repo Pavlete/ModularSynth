@@ -1,19 +1,22 @@
+#include <memory>
+
 #include "synthcanvas.h"
 
 #include "nodes/vcf.h"
 #include "nodes/vco.h"
 #include "nodes/outvca.h"
 
-SynthCanvas::SynthCanvas(NodeModel& path)
+SynthCanvas::SynthCanvas(JuceGraphModel& path)
     : NodeView (path)
-    , m_synthPath (path)
     , m_menu (path)
 {        
     addChildComponent(m_menu);
     m_menu.addElement<VCO_GUI>("VCO", "Oscillator");
+    m_menu.addElement<VCF_GUI>("VCF", "Filter");
 
-    path.addInitNode(std::make_unique<OutVCA_GUI>(m_synthPath), {600,100},0);   
+    path.addInitNode(std::make_unique<OutVCA_GUI>(path), 600, 100, 0);
 }
+
 
 void SynthCanvas::paint(Graphics &g)
 {
@@ -33,4 +36,15 @@ void SynthCanvas::mouseDown(const MouseEvent &event)
         m_menu.setBounds(rect);
         m_menu.setVisible(true);
     }
+}
+
+void SynthCanvas::onNodeAdded(JuceAudioNode* node, int x, int y)
+{
+    addAndMakeVisible(node);
+    node->setBounds(x, y, node->getWidth(), node->getHeight());
+}
+
+void SynthCanvas::onConnectionAdded(JuceConnection* conn)
+{
+    addAndMakeVisible(conn);
 }

@@ -11,14 +11,14 @@ public:
 
     float nextSample( );
 
-    void setFrequency(int freq);
+    void setFrequency(float freq);
 
     void setWaveFunction(WaveFunction func);
 
 private:
     const int m_samplerate;
 
-    int m_currentFreq;
+    float m_currentFreq;
 
     float m_currentPhase;
     float m_phaseJump;

@@ -4,15 +4,15 @@
 
 namespace  processGraph{
 
-template <class T>
+template <class DataType>
 class AudioProcessGraph
 {
 public:
-    class AudioNode: public ProcessGraph<T>::Node
+    class AudioNode: public ProcessGraph<DataType>::Node
     {
     public:
         AudioNode(int inNumber, int outNumber)
-            : ProcessGraph<T>::Node(inNumber,outNumber)
+            : ProcessGraph<DataType>::Node(inNumber,outNumber)
         {}
         virtual void setActive(float) {}
         virtual void setInactive() {}
@@ -94,13 +94,13 @@ public:
         return m_graph.setInitNode(outputPoint);
     }
 
-    inline void proccessData(T& outData)
+    inline void proccessData(DataType& outData)
     {
         m_graph.proccessData(outData);
     }
 
 private:
-    processGraph::ProcessGraph<T> m_graph;
+    processGraph::ProcessGraph<DataType> m_graph;
     std::set<int32_t> m_graphIds;
 };
 }

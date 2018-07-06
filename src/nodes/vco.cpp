@@ -1,26 +1,38 @@
+#include <cmath>
+
 #include "vco.h"
 
 #include "../soundProc/waves.h"
 
-VCO::VCO() : JuceAudioNode(0,1), m_signal(44100)
+VCO::VCO(SettingsSubject<VCOSettings>& subject)
+    : processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode(0,1)
+    , SettingsObserver<VCOSettings>(subject)
+    , m_signal(44100)
+    , m_waveforms {waveforms::sin,
+                   waveforms::square,
+                   waveforms::sawtooth,
+                   waveforms::triangle}
 {
     m_signal.setWaveFunction(waveforms::sin);
 }
 
 void VCO::setActive(float freq)
 {
-    m_signal.setFrequency(static_cast<int>(freq));
-    m_active = true;
+    m_signal.setFrequency(freq * getSettings()->pitchOfset);
+    m_frequency = freq;
 }
 
 void VCO::process()
-{    
+{
+    updateSettings();
+
     auto buf = getOutputData(0);
     if(!buf)
     {
         return;
     }
     buf->buffer()->clear();
+
     for(int i = 0; i < buf->numberOfSamples(); i++)
     {
         auto sample = m_signal.nextSample();
@@ -29,20 +41,60 @@ void VCO::process()
     }
 }
 
-VCO_GUI::VCO_GUI(NodeModel& model)
-    : UIAudioNode (model, 0,1)
-{}
-
-void VCO_GUI::paintContent(Graphics &g)
+void VCO::updateSettings()
 {
-    auto local = getLocalBounds();
-    g.setColour(juce::Colours::lightgrey);
-    Font f (25, Font::bold);
-    g.setFont(f);
-    g.drawText("VCO", getLocalBounds(), juce::Justification::centred);
+    if(m_settingsChanged)
+    {
+        auto settings = getSettings();
+        m_signal.setFrequency(m_frequency * settings->pitchOfset);
+        m_signal.setWaveFunction(m_waveforms.at(settings->signalWave));
+        m_settingsChanged = false;
+    }
+}
+
+
+//----------------------------------------------------------//
+
+
+
+VCO_GUI::VCO_GUI(JuceGraphModel& model)
+    : JuceAudioNode (model, 0,1)
+
+{
+    setSize(300, 125);
+
+    addAndMakeVisible(m_offsetSlider);
+    m_offsetSlider.addListener(this);
+    m_offsetSlider.setRange(-2, 2, 0.1);
+    m_offsetSlider.setValue(0);
+
+    addAndMakeVisible(m_waveformSlider);
+    m_waveformSlider.addListener(this);
+    m_waveformSlider.setRange(0, 3, 1);
+    m_waveformSlider.setValue(0);
+}
+
+void VCO_GUI::setContent(Rectangle<int> &r)
+{
+    m_offsetSlider.setBounds(r.removeFromTop(getHeight()/2));
+    m_waveformSlider.setBounds(r);
 }
 
 GraphFactory VCO_GUI::getModule()
 {
-    return [](){return std::make_unique<VCO>();};
+    return [&](){return std::make_unique<VCO>(*this);};
+}
+
+void VCO_GUI::sliderValueChanged(Slider *slider)
+{
+    if(slider == &m_offsetSlider)
+    {
+        setParameter(exp2f(static_cast<float>(slider->getValue())),
+                 &VCOSettings::pitchOfset);
+    }
+    else if(slider == &m_waveformSlider)
+    {
+        setParameter(slider->getValue(),
+                 &VCOSettings::signalWave);
+    }
 }

@@ -1,16 +1,11 @@
 #pragma once
 
-#include "common/uiaudionode.h"
+#include "common/juceaudionode.h"
 #include "../soundProc/signal.h"
 
-namespace
-{
-const int SignalInput = 0;
-const int SignalOutput= 0;
-}
 
 
-class OutVCA: public JuceAudioNode
+class OutVCA: public AudioGraphNode
 {
 public:
     OutVCA();
@@ -22,12 +17,12 @@ private:
 };
 
 
-class OutVCA_GUI : public UIAudioNode
+class OutVCA_GUI : public JuceAudioNode
 {
 public:
-    OutVCA_GUI(NodeModel& model);
+    OutVCA_GUI(JuceGraphModel& model);
 
-    void paintContent(Graphics &g) override;
+    void setContent(Rectangle<int> &r) override;
 
     GraphFactory getModule() override;
 };

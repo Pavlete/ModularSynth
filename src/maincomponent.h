@@ -2,7 +2,6 @@
 
 #include <JuceHeader.h>
 
-#include "modularsynthpath.h"
 #include "modularsynth.h"
 #include "modularvoice.h"
 #include "synthcanvas.h"
@@ -32,7 +31,7 @@ private:
     void setMidiInput (int index);
 
     //==========================================================================
-    ModularSynthPath m_synthPath;
+    JuceGraphModel m_synthPath;
 
     ModularSynth m_modularSynth;
     MidiKeyboardState m_keyboardState;

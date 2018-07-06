@@ -1,11 +1,11 @@
 #pragma once
 
-#include "nodes/common/uiaudionode.h"
+#include "nodes/common/juceaudionode.h"
 
 template <class T>
 class AudioGraphObservable;
 
-struct ModularSound   : public SynthesiserSound
+struct ModularSound : public SynthesiserSound
 {
     bool appliesToNote    (int) override        { return true; }
     bool appliesToChannel (int) override        { return true; }
@@ -19,6 +19,7 @@ public:
     using NodeType = processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode;
 
     ModularVoice(AudioGraphObservable<AudioBufferWrapper>& observable);
+    ~ModularVoice();
 
     bool canPlaySound(SynthesiserSound *sound) override;
 
@@ -41,6 +42,7 @@ public:
 
 private:
     processGraph::AudioProcessGraph<AudioBufferWrapper> m_graph;
-    float m_outAmpl;
+    AudioGraphObservable<AudioBufferWrapper>& m_observable;
 
+    float m_outAmpl;
 };

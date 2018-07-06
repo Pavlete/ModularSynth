@@ -2,27 +2,42 @@
 
 #include "audioprocessgraph.h"
 
-template <class T>
+template <class DataType>
 class AudioGraphObservable
 {
-    using NodeType = typename processGraph::AudioProcessGraph<T>::AudioNode;
+    using NodeType = typename processGraph::AudioProcessGraph<DataType>::AudioNode;
 
 public:
     using GraphFactory = std::function<std::unique_ptr<NodeType>()>;
 
     virtual ~AudioGraphObservable() = default;
 
-    void registerGraph(processGraph::AudioProcessGraph<T>* modulable)
+    void registerGraph(processGraph::AudioProcessGraph<DataType>* modulable)
     {
-        if (modulable != nullptr)
+        if (modulable)
+        {
             m_observers.push_back(modulable);
+        }
     }
 
-    int addModule( GraphFactory factory)
+    void unregisterGraph(processGraph::AudioProcessGraph<DataType>* modulable)
+    {
+        if (!modulable)
+        {
+            return;
+        }
+        auto found = std::find(m_observers.begin(), m_observers.end(), modulable);
+        if(found != m_observers.end())
+        {
+            m_observers.erase(found);
+        }
+    }
+
+    int addModule(GraphFactory factory)
     {
         int i = 0;
         for (auto modulable : m_observers)
-            i = modulable->addNode( factory());
+            i = modulable->addNode(factory());
         return i;
     }
 
@@ -32,23 +47,21 @@ public:
             modulable->removeModule(id);
     }
 
-    bool addConnection(int outModuleId, int moduleOutput,
-                       int inModuleId, int moduleInput)
+    bool addConnection(const processGraph::ConnectionPoint& out,
+                        const processGraph::ConnectionPoint& in)
     {
         bool ret = true;
         for (auto modulable : m_observers)
-            ret &= modulable->addConnection({outModuleId, moduleOutput },
-                                            {inModuleId, moduleInput});
+            ret &= modulable->addConnection(out, in);
         return ret;
     }
 
-    bool removeConnection(int outModuleId, int moduleOutput,
-                          int inModuleId, int moduleInput)
+    bool removeConnection(const processGraph::ConnectionPoint& out,
+                           const processGraph::ConnectionPoint& in)
     {
-        bool ret;
+        bool ret = true;
         for (auto modulable : m_observers)
-            ret &= modulable->removeConnection({outModuleId, moduleOutput },
-                                               {inModuleId, moduleInput});
+            ret &= modulable->removeConnection(out, in);
         return ret;
     }
 
@@ -65,5 +78,5 @@ public:
     }
 
 private:
-    std::vector<processGraph::AudioProcessGraph<T>*> m_observers;
+    std::vector<processGraph::AudioProcessGraph<DataType>*> m_observers;
 };

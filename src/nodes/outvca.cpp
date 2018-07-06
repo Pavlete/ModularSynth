@@ -1,7 +1,14 @@
 #include "outvca.h"
 
+namespace
+{
+const int SignalInput = 0;
+const int SignalOutput= 0;
+}
+
+
 OutVCA::OutVCA()
-    : JuceAudioNode (1,1)
+    : AudioGraphNode (1,1)
     , m_amplitude (0.25f)
 {}
 
@@ -24,17 +31,14 @@ void OutVCA::process()
 }
 
 
-OutVCA_GUI::OutVCA_GUI(NodeModel& model)
-    :UIAudioNode (model, 1, 0)
-{}
-
-void OutVCA_GUI::paintContent(Graphics &g)
+OutVCA_GUI::OutVCA_GUI(JuceGraphModel& model)
+    :JuceAudioNode (model, 1, 0)
 {
-    auto local = getLocalBounds();
-    g.setColour(juce::Colours::lightgrey);
-    Font f (25, Font::bold);
-    g.setFont(f);
-    g.drawText("VCA", getLocalBounds(), juce::Justification::centred);
+    setSize(125, 125);
+}
+
+void OutVCA_GUI::setContent(Rectangle<int> &r)
+{
 }
 
 GraphFactory OutVCA_GUI::getModule()

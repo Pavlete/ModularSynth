@@ -3,8 +3,14 @@
 #include "graph/audiographobservable.h"
 
 ModularVoice::ModularVoice(AudioGraphObservable<AudioBufferWrapper>& observable)
+    : m_observable(observable)
 {
-    observable.registerGraph(&m_graph);
+    m_observable.registerGraph(&m_graph);
+}
+
+ModularVoice::~ModularVoice()
+{
+    m_observable.unregisterGraph(&m_graph);
 }
 
 bool ModularVoice::canPlaySound(SynthesiserSound *sound)

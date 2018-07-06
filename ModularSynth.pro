@@ -12,7 +12,6 @@ SOURCES += \
     src/maincomponent.cpp \
     src/Main.cpp \
     src/modularvoice.cpp \
-    src/graph/audiographobservable.cpp \
     src/modularsynth.cpp \
     src/soundProc/adsrenvelope.cpp \
     src/soundProc/glide.cpp \
@@ -21,12 +20,12 @@ SOURCES += \
     src/nodes/vco.cpp \
     src/synthcanvas.cpp \
     src/modulemenu.cpp \
-    src/modularsynthpath.cpp \
     src/nodes/outvca.cpp \
     src/nodes/common/audiobufferwrapper.cpp \
-    src/nodes/common/uiaudionode.cpp \
-    src/nodes/common/connection.cpp \
-    src/nodes/vcf.cpp
+    src/nodes/vcf.cpp \
+    src/nodes/common/juceaudionode.cpp \
+    src/nodes/common/juceconnection.cpp \
+    src/nodes/common/socket.cpp
 
 
 HEADERS += \
@@ -47,12 +46,14 @@ HEADERS += \
     src/nodes/vco.h \
     src/synthcanvas.h \
     src/modulemenu.h \
-    src/modularsynthpath.h \
     src/nodes/outvca.h \
     src/nodes/common/audiobufferwrapper.h \
-    src/nodes/common/uiaudionode.h \
-    src/nodes/common/connection.h \
-    src/nodes/vcf.h
+    src/nodes/vcf.h \
+    src/nodes/common/juceaudionode.h \
+    src/nodes/common/juceconnection.h \
+    src/nodes/common/audiographmodel.h \
+    src/nodes/common/socket.h \
+    src/nodes/common/settingsobserver.h
 
 
 

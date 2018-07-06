@@ -1,29 +1,25 @@
-#ifndef FLOWVIEW_H
-#define FLOWVIEW_H
-
-#include <JuceHeader.h>
+#pragma once
 
 #include "nodemodel.h"
 
-class NodeView : public Component
+template<class NodeType, class ConnectionType>
+class NodeView
 {
 public:
-    NodeView(NodeModel& model)
+    NodeView(NodeModel<NodeType,ConnectionType>& model)
     {
-        model.m_nodeAdded = [&](juce::Component* comp, const Point<int>& p)
+        model.m_nodeAdded = [&](NodeType* node, int x, int y)
         {
-            comp->setBounds(comp->getBounds() + p);
-            this->addAndMakeVisible(comp);
+            onNodeAdded(node, x, y);
         };
 
-        model.m_connectionAdded = [&](juce::Component* comp, const Point<int>&)
+        model.m_connectionAdded = [&](ConnectionType* conn)
         {
-            this->addAndMakeVisible(comp);
+            onConnectionAdded(conn);
         };
     }
 
-private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NodeView)
+protected:
+    virtual void onNodeAdded(NodeType* node, int x, int y) = 0;
+    virtual void onConnectionAdded(ConnectionType* conn) = 0;
 };
-
-#endif // FLOWVIEW_H

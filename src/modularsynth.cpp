@@ -7,7 +7,7 @@ ModularSynth::ModularSynth(MidiKeyboardState &keyState,
     : m_keyboardState (keyState)
     , m_synthPath (path)
 {
-    for (auto i = 0; i < 4; ++i)
+    for (auto i = 0; i < 8; ++i)
         m_synth.addVoice (new ModularVoice(m_synthPath));
 
     m_synth.addSound (new ModularSound());

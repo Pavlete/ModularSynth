@@ -3,6 +3,7 @@
 
 
 #include <algorithm>
+#include <atomic>
 #include <memory>
 #include <set>
 #include <unordered_map>
@@ -18,13 +19,6 @@ struct ConnectionPoint
     int32_t nodeId;
     uint32_t portNumber;
 
-    ConnectionPoint& operator=(const ConnectionPoint& other)
-    {
-        nodeId = other.nodeId;
-        portNumber = other.portNumber;
-        return *this;
-    }
-
     bool operator==(const ConnectionPoint& other)
     {
         return nodeId == other.nodeId &&
@@ -32,9 +26,16 @@ struct ConnectionPoint
     }
 };
 
-template <class T>
+template <class DataType>
 class ProcessGraph
 {
+    enum class Status
+    {
+        NO_CHANGE,
+        CHANGING,
+        CHANGED
+    };
+
     enum class PointDirection
     {
         Input,
@@ -53,6 +54,9 @@ public:
 
     bool removeNode(int nodeId)
     {
+        //TODO: Check if current path is affected before deleting and
+        //      take care of non deleting anything asynchronously while
+        //      the process thread could be using the node
         return m_nodes.erase( nodeId ) != 0;
     }
 
@@ -135,8 +139,13 @@ public:
         return updatePath();
     }
 
-    void proccessData(T& outData)
+    void proccessData(DataType& outData)
     {
+        if(m_status == Status::CHANGED)
+        {
+            updateSynchronus();
+        }
+
         m_outEdge->setMyOwnData(&outData);
         for(auto& element : m_currentPath)
         {
@@ -152,9 +161,15 @@ private:
             return false;
         }
 
-        m_currentPath.clear();
+        m_status = Status::CHANGING;
+
+        m_tempPath.clear();
         std::set<int> visitingSet;
-        return visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_currentPath);
+        auto result = visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_tempPath);
+
+        m_status = Status::CHANGED;
+
+        return result;
     }
 
     bool visitNode(int nodeId,
@@ -217,9 +232,20 @@ private:
         return !edges[point.portNumber].expired();
     }
 
+    void updateSynchronus()
+    {
+        m_currentPath = std::move(m_tempPath);        
+        m_status = Status::NO_CHANGE;
+    }
+
     std::unordered_map<int, std::unique_ptr<Node>> m_nodes;
     std::vector<std::shared_ptr<Edge>> m_edges;
+
     std::vector<int> m_currentPath;
+    std::vector<int> m_tempPath;
+
+    std::atomic<Status> m_status;
+
     std::shared_ptr<Edge> m_outEdge = std::make_shared<Edge>();
 
     int m_currentId = 0;
