@@ -45,7 +45,7 @@ class VCO_GUI : public JuceAudioNode
               , public SettingsSubject<VCOSettings>
 {
 public:
-    VCO_GUI(JuceGraphModel& model);
+    VCO_GUI(Node& model);
 
     void setContent(Rectangle<int> &r) override;
 

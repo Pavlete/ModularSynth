@@ -2,12 +2,12 @@
 
 #include <JuceHeader.h>
 
+#include "synthmodel.h"
 #include "nodes/common/juceaudionode.h"
 
 
 class ModuleMenu: public TreeView
-{    
-    using Factory = std::function<std::unique_ptr<JuceAudioNode>()>;
+{
     struct Category: public TreeViewItem
     {
         Category(std::string name): m_categoryName(name) {}
@@ -23,9 +23,9 @@ class ModuleMenu: public TreeView
 
     struct Module: public TreeViewItem
     {
-        Module(std::string name, Factory fact)
+        Module(std::string name, SynthModel path)
             : m_moduleName(name)
-            , m_fact(fact)
+            , m_synthPath(path)
         {}
 
         bool mightContainSubItems() override { return false; }
@@ -37,11 +37,11 @@ class ModuleMenu: public TreeView
         void itemClicked(const MouseEvent &e) override;
 
         const std::string m_moduleName;
-        const Factory m_fact;
+        SynthModel m_synthPath;
     };
 
 public:
-    ModuleMenu(JuceGraphModel& flow);
+    ModuleMenu(SynthModel flow);
 
     void paint(Graphics &g) override;
 
@@ -50,7 +50,7 @@ public:
 
 private:
     Category m_rootElement;
-    JuceGraphModel& m_syntPath;
+    SynthModel m_path;
 };
 
 
@@ -80,5 +80,5 @@ void ModuleMenu::addElement(std::string name, std::string category)
         root->addSubItem(categoryItem);
     }
 
-    categoryItem->addSubItem(new Module(name, [&](){return std::make_unique<ModuleClass>(m_syntPath);}));
+    categoryItem->addSubItem(new Module(name, m_path));
 }

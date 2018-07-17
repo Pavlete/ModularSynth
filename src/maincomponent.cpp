@@ -6,7 +6,7 @@
 MainContentComponent::MainContentComponent()
     : m_modularSynth  (m_keyboardState, m_synthPath.getObservable())
     , m_keyboardComponent (m_keyboardState, MidiKeyboardComponent::horizontalKeyboard)
-    , m_canvas (m_synthPath)
+    , m_canvas (m_synth)
 {
     addAndMakeVisible (m_midiInputListLabel);
     m_midiInputListLabel.setText ("MIDI Input:", dontSendNotification);
@@ -36,11 +36,14 @@ MainContentComponent::MainContentComponent()
 
     setSize (800, 600);
     startTimer (400);
+
+    m_synth.loadFromFile(File::getSpecialLocation (File::userDesktopDirectory).getChildFile ("Hola.xml"));
 }
 
 MainContentComponent::~MainContentComponent()
 {
     shutdownAudio();
+    m_synth.saveToFile(File::getSpecialLocation (File::userDesktopDirectory).getChildFile ("Hola.xml"));
 }
 
 void MainContentComponent::resized()

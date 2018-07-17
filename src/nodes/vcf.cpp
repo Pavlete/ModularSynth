@@ -37,7 +37,7 @@ void VCF::process()
 //---------------------------------------------------------------------//
 
 
-VCF_GUI::VCF_GUI(JuceGraphModel &model)
+VCF_GUI::VCF_GUI(const Node& model)
     :JuceAudioNode (model, 1, 1)
 {
     addAndMakeVisible(m_button);

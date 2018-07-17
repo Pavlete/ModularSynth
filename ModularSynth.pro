@@ -25,7 +25,9 @@ SOURCES += \
     src/nodes/vcf.cpp \
     src/nodes/common/juceaudionode.cpp \
     src/nodes/common/juceconnection.cpp \
-    src/nodes/common/socket.cpp
+    src/nodes/common/socket.cpp \
+    src/synthmodel.cpp \
+    src/nodes/common/ongoingconnection.cpp
 
 
 HEADERS += \
@@ -53,7 +55,9 @@ HEADERS += \
     src/nodes/common/juceconnection.h \
     src/nodes/common/audiographmodel.h \
     src/nodes/common/socket.h \
-    src/nodes/common/settingsobserver.h
+    src/nodes/common/settingsobserver.h \
+    src/synthmodel.h \
+    src/nodes/common/ongoingconnection.h
 
 
 

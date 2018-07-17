@@ -2,9 +2,9 @@
 
 #include "nodes/common/audiographmodel.h"
 
-ModuleMenu::ModuleMenu(JuceGraphModel& path)
+ModuleMenu::ModuleMenu(SynthModel path)
     : m_rootElement("")
-    , m_syntPath(path)
+    , m_path(path)
 {
     setRootItem(&m_rootElement);
     setBounds(0,0,100,200);
@@ -33,6 +33,8 @@ void ModuleMenu::Module::itemClicked(const MouseEvent&)
 {
     auto menu = static_cast<ModuleMenu*>(getOwnerView());
     auto pos = menu->getBoundsInParent().getPosition();
-    menu->m_syntPath.addNode(m_fact(), pos.getX(), pos.getY());
     menu->setVisible(false);
+
+
+    m_synthPath.addModule({pos.getX(), pos.getY(), m_moduleName});
 }

@@ -6,15 +6,15 @@
 #include "nodes/vco.h"
 #include "nodes/outvca.h"
 
-SynthCanvas::SynthCanvas(JuceGraphModel& path)
-    : NodeView (path)
-    , m_menu (path)
-{        
+SynthCanvas::SynthCanvas(SynthModel synth)
+    : m_synth(synth)
+    , m_menu (synth)
+{
+    m_synth.addListener(this);
     addChildComponent(m_menu);
     m_menu.addElement<VCO_GUI>("VCO", "Oscillator");
     m_menu.addElement<VCF_GUI>("VCF", "Filter");
-
-    path.addInitNode(std::make_unique<OutVCA_GUI>(path), 600, 100, 0);
+    //path.addInitNode(std::make_unique<OutVCA_GUI>(path), 600, 100, 0);
 }
 
 
@@ -38,13 +38,52 @@ void SynthCanvas::mouseDown(const MouseEvent &event)
     }
 }
 
-void SynthCanvas::onNodeAdded(JuceAudioNode* node, int x, int y)
+void SynthCanvas::nodeAdded(Node mod)
 {
-    addAndMakeVisible(node);
-    node->setBounds(x, y, node->getWidth(), node->getHeight());
+    m_nodes.push_back(std::make_unique<VCF_GUI>(mod));
+    auto newNode = m_nodes.back().get();
+    addAndMakeVisible(newNode);
 }
 
-void SynthCanvas::onConnectionAdded(JuceConnection* conn)
+void SynthCanvas::connectionAdded(Connection con)
 {
-    addAndMakeVisible(conn);
+    m_connections.push_back(std::make_shared<JuceConnection>(con));
+    auto newConnection = m_connections.back();
+    addAndMakeVisible(newConnection.get());
+    newConnection->setAlwaysOnTop(true);
+
+    auto outNode = findNodeByID(con.connectionOutID);
+    auto inNode = findNodeByID(con.connectionInID);
+
+    (*outNode)->setConnection(newConnection, Socket::Direction::Output);
+    (*inNode)->setConnection(newConnection, Socket::Direction::Input);
+}
+
+void SynthCanvas::connectionRemoved(Connection connection)
+{
+    auto conn = findConnection(connection.connectionOutID,
+                               connection.connectionOutPort);
+    removeChildComponent(conn->get());
+    m_connections.erase(conn);
+}
+
+std::vector<std::unique_ptr<JuceAudioNode>>::iterator SynthCanvas::findNodeByID(int id)
+{
+    auto node = std::find_if(m_nodes.begin(), m_nodes.end(), [id](const auto& node)
+    {
+        return node->getNodeID() == id;
+    });
+
+    return node;
+}
+
+std::vector<std::shared_ptr<JuceConnection>>::iterator SynthCanvas::findConnection(int outID, int outPort)
+{
+    auto conn = std::find_if(m_connections.begin(), m_connections.end(), [&](const auto& conn)
+    {
+        return conn->getOutputID() == outID &&
+               conn->getOutputPort() == outPort;
+    });
+
+    return conn;
 }

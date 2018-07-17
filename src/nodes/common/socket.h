@@ -1,12 +1,8 @@
 #pragma once
 
 #include "juceconnection.h"
+#include "ongoingconnection.h"
 
-enum class Direction
-{
-    Input,
-    Output
-};
 
 class Socket: public Component
             , public ComponentListener
@@ -14,7 +10,13 @@ class Socket: public Component
     using ConnectorMovingFunction = void (JuceConnection::*)(const Point<int>&);
 
 public:
-    Socket(JuceGraphModel& model, uint32_t index, Direction dir);
+    enum class Direction
+    {
+        Input,
+        Output
+    };
+
+    Socket(Node model, uint32_t index, Direction dir, OngoingConnection& ongoing);
 
     void mouseDrag(const MouseEvent &event) override;
     void mouseDown(const MouseEvent &event) override;
@@ -29,17 +31,17 @@ public:
                                  bool wasMoved,
                                  bool wasResized) override;
 
-    void setNodeId(int id) { m_nodeId = id; }
+    void setConnection(std::shared_ptr<JuceConnection> con);
 
-    processGraph::ConnectionPoint getPoint() {return {m_nodeId, m_index};}
-    Direction getDirection() {return m_direction;}
+    processGraph::ConnectionPoint getPoint() const {return {m_nodeId, m_index};}
+    Direction getDirection() const {return m_direction;}
 
 private:
-    JuceGraphModel& m_parentModel;
+    SynthModel m_synthModel;
 
     // Node interaction properties
     std::weak_ptr<JuceConnection> m_currentConnection;
-    int m_nodeId;
+    const int m_nodeId;
     const uint32_t m_index;
     const Direction m_direction;
 
@@ -47,9 +49,10 @@ private:
     ConnectorMovingFunction m_movingFunction;
     Point<int> getCenterInCanvas();
     Point<int> mapToCanvas(const Point<int>& p);
-
     Socket* getSocketUnderCursor(const Point<int>& p);
     Socket* m_opositeSocket;
+    void resetOngoingConnection();
+
 
     // Animating/interactive stuff
     ComponentAnimator m_animator;
@@ -59,8 +62,5 @@ private:
     void startMouseEnterAnimation();
     void startMouseExitAnimation();
 
-
-    static void setConnection(Socket& socket,
-                              std::shared_ptr<JuceConnection> con,
-                              bool isStart);
+    OngoingConnection& m_ongoing;
 };

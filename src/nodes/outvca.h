@@ -20,7 +20,7 @@ private:
 class OutVCA_GUI : public JuceAudioNode
 {
 public:
-    OutVCA_GUI(JuceGraphModel& model);
+    OutVCA_GUI(const Node& model);
 
     void setContent(Rectangle<int> &r) override;
 

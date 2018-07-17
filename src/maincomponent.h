@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 
+#include "synthmodel.h"
 #include "modularsynth.h"
 #include "modularvoice.h"
 #include "synthcanvas.h"
@@ -31,6 +32,8 @@ private:
     void setMidiInput (int index);
 
     //==========================================================================
+    SynthModel m_synth;
+
     JuceGraphModel m_synthPath;
 
     ModularSynth m_modularSynth;

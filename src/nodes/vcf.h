@@ -21,7 +21,7 @@ private:
 class VCF_GUI :public JuceAudioNode
 {
 public:
-    VCF_GUI(JuceGraphModel& model);
+    VCF_GUI(const Node& model);
 
     void setContent(Rectangle<int> &r) override;
 

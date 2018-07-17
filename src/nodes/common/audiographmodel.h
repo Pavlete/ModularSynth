@@ -46,7 +46,7 @@ AudioGraphModel<NodeType, ConnectionType, DataType>::addNode(std::unique_ptr<Nod
                               int x, int y)
 {
     auto nodeId = m_graph.addModule(comp->getModule());
-    comp->setNodeID(nodeId);
+    //comp->setNodeID(nodeId);
     if(nodeId != processGraph::INVALID_NODE_ID)
     {
         NodeModel<NodeType, ConnectionType>::addNode(std::move(comp), x, y);

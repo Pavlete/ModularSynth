@@ -1,80 +1,81 @@
 #include "socket.h"
 
+namespace  {
+    static const float non_paired_alpha = 0.3f;
+    static const float paired_alpha = 0.7f;
+}
 
-Socket::Socket(JuceGraphModel& model, uint32_t index, Direction dir)
-    : m_parentModel(model)
-    , m_nodeId(processGraph::INVALID_NODE_ID)
+
+Socket::Socket(Node model, uint32_t index, Direction dir, OngoingConnection& ongoing)
+    : m_synthModel(model.getParentSynth())
+    , m_nodeId(model.moduleId)
     , m_index(index)
     , m_direction(dir)
     , m_opositeSocket(nullptr)
     , m_color(Colours::grey)
-{}
+    , m_ongoing(ongoing)
+{
+    dir == Direction::Output? m_movingFunction = &JuceConnection::setStart:
+                              m_movingFunction = &JuceConnection::setEnd;
+
+}
 
 void Socket::mouseDrag(const MouseEvent &event)
 {
     auto con = m_currentConnection.lock();
 
-    if(!con || con->isEstablished())
+    if(con)
     {
         return;
     }
 
-    con->setEndPoint(mapToCanvas(event.getPosition()));
+    m_ongoing.setEnd(mapToCanvas(event.getPosition()));
+
     auto connector = getSocketUnderCursor(event.getPosition());
 
     if(connector &&
+       connector->m_nodeId != m_nodeId &&
+       connector->getDirection() != getDirection() &&
        !m_opositeSocket)
     {
         m_opositeSocket = connector;
         m_opositeSocket->startMouseEnterAnimation();
+        m_ongoing.setAlpha(paired_alpha);
     }
     else if(!connector &&
             m_opositeSocket)
     {
+        m_ongoing.setAlpha(non_paired_alpha);
         m_opositeSocket->startMouseExitAnimation();
         m_opositeSocket = nullptr;
     }
-
 }
 
-void Socket::mouseDown(const MouseEvent &event)
-{
-    if(!m_currentConnection.expired())
-    {
-        return;
-    }
-
-    m_currentConnection =
-            m_parentModel.addConnection(std::make_shared<JuceConnection>(m_parentModel));
-    auto con = m_currentConnection.lock();
-
-    con->setConnectionPoint(getPoint(),
-                            getDirection() == Direction::Input);
-    setConnection(*this, con, true);
-}
-
-void Socket::mouseUp(const MouseEvent& event)
+void Socket::mouseDown(const MouseEvent& event)
 {
     auto connection = m_currentConnection.lock();
+    if(connection)
+    {
+        return;
+    }
+    resetOngoingConnection();
+    m_ongoing.setEnd(mapToCanvas(event.getPosition()));
+}
 
-    if(!connection || connection->isEstablished())
+void Socket::mouseUp(const MouseEvent&)
+{
+    m_ongoing.setVisible(false);
+
+    if(!m_opositeSocket)
     {
         return;
     }
 
-    auto connector = getSocketUnderCursor(event.getPosition());
-
-    if(connector && connector == m_opositeSocket &&
-       connection->setConnectionPoint(m_opositeSocket->getPoint(),
-                                      m_opositeSocket->getDirection() == Direction::Input))
-    {
-        setConnection(*m_opositeSocket, connection, false);
-        m_opositeSocket->startMouseExitAnimation();
-    }
-    else
-    {
-        m_parentModel.removeConnection(connection);
-    }
+    getDirection() == Direction::Output?
+                m_synthModel.addConnection({m_nodeId, m_index,
+                                            m_opositeSocket->m_nodeId, m_opositeSocket->m_index}):
+                m_synthModel.addConnection({m_opositeSocket->m_nodeId, m_opositeSocket->m_index,
+                                            m_nodeId, m_index});
 }
 
 void Socket::mouseEnter(const MouseEvent&)
@@ -115,6 +116,13 @@ void Socket::componentMovedOrResized(Component&, bool wasMoved, bool)
     }
 }
 
+void Socket::setConnection(std::shared_ptr<JuceConnection> con)
+{
+    m_currentConnection = con;
+    getDirection() == Direction::Output? con->setStart(getCenterInCanvas()):
+                                         con->setEnd(getCenterInCanvas());
+}
+
 Point<int> Socket::getCenterInCanvas()
 {
     return mapToCanvas(getLocalBounds().getCentre());
@@ -127,13 +135,21 @@ Point<int> Socket::mapToCanvas(const Point<int>& p)
 
 Socket* Socket::getSocketUnderCursor(const Point<int> &p)
 {
-    auto canvas = getParentComponent()->getParentComponent();
+    auto canvas = m_ongoing.getParentComponent();
     auto ptr = dynamic_cast<Socket*>(canvas->getComponentAt(mapToCanvas(p)));
     if(!ptr)
     {
         ptr = dynamic_cast<Socket*>(canvas->getComponentAt(mapToCanvas(p + Point<int>(-1,0))));
     }
     return ptr == this? nullptr : ptr;
+}
+
+void Socket::resetOngoingConnection()
+{
+    m_ongoing.setVisible(true);
+    m_ongoing.setAlpha(non_paired_alpha);
+    m_ongoing.setAlwaysOnTop(true);
+    m_ongoing.setStart(getCenterInCanvas());
 }
 
 void Socket::startMouseEnterAnimation()
@@ -149,20 +165,3 @@ void Socket::startMouseExitAnimation()
                                 m_noMouseBounds,
                                 1, 200, false, 1.0, 0.0);
 }
-
-void Socket::setConnection(Socket &socket,
-                           std::shared_ptr<JuceConnection> con,
-                           bool isStart)
-{
-    socket.m_currentConnection = con;
-    con->setEndPoint(socket.getCenterInCanvas());
-
-    if(isStart)
-    {
-        con->setStartPoint(socket.getCenterInCanvas());
-        socket.m_movingFunction = &JuceConnection::setStartPoint;
-    }
-    else
-    {
-        socket.m_movingFunction = &JuceConnection::setEndPoint;
-    }}

@@ -3,30 +3,34 @@
 #include "../../graph/processgraph.h"
 
 
-JuceAudioNode::JuceAudioNode(JuceGraphModel& model,
+JuceAudioNode::JuceAudioNode(Node model,
                              int inputNumber,
                              int outputNumber)
+    : m_model(model)
 {
     for(int i = 0; i< inputNumber; i++)
     {
-        m_inConnectors.emplace_back(std::make_unique<Socket>(model, i, Direction::Input));
+        m_inConnectors.emplace_back(std::make_unique<Socket>(model, i, Socket::Direction::Input, m_ongoing));
         addComponentListener(m_inConnectors.back().get());
         addAndMakeVisible(m_inConnectors.back().get());
     }
 
     for(int i = 0; i< outputNumber; i++)
     {
-        m_outConnectors.emplace_back(std::make_unique<Socket>(model, i, Direction::Output));
+        m_outConnectors.emplace_back(std::make_unique<Socket>(model, i, Socket::Direction::Output, m_ongoing));
         addComponentListener(m_outConnectors.back().get());
         addAndMakeVisible(m_outConnectors.back().get());
     }
+
+
+    setBounds(model.moduleX,model.moduleY, getWidth(),getHeight());
 }
 
-void JuceAudioNode::setNodeID(int id)
+std::string JuceAudioNode::getConnectorName(int) {return "";}
+
+int JuceAudioNode::getNodeID() const
 {
-    auto setIdFunct = [&](std::unique_ptr<Socket>& c){c->setNodeId(id);};
-    std::for_each(m_inConnectors.begin(),m_inConnectors.end(), setIdFunct);
-    std::for_each(m_outConnectors.begin(),m_outConnectors.end(), setIdFunct);
+    return m_model.moduleId;
 }
 
 void JuceAudioNode::paint(Graphics &g)
@@ -56,6 +60,17 @@ void JuceAudioNode::resized()
     setContent(contentRect);
 }
 
+void JuceAudioNode::moved()
+{
+    m_model.moduleX = getBounds().getX();
+    m_model.moduleY = getBounds().getY();
+}
+
+void JuceAudioNode::parentHierarchyChanged()
+{
+    getParentComponent()->addChildComponent(m_ongoing);
+}
+
 void JuceAudioNode::mouseDown(const MouseEvent &event)
 {
     m_dragger.startDraggingComponent(this, event);
@@ -63,6 +78,14 @@ void JuceAudioNode::mouseDown(const MouseEvent &event)
 
 void JuceAudioNode::mouseDrag(const MouseEvent &event)
 {
-     m_dragger.dragComponent(this, event, nullptr);
+    m_dragger.dragComponent(this, event, nullptr);
+}
+
+void JuceAudioNode::setConnection(std::shared_ptr<JuceConnection> con,
+                                  Socket::Direction dir)
+{
+    auto& socket = dir == Socket::Direction::Input? m_inConnectors[con->getInputPort()]:
+                                                   m_outConnectors[con->getOutputPort()];
+    socket->setConnection(con);
 }
 

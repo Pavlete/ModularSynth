@@ -57,7 +57,7 @@ void VCO::updateSettings()
 
 
 
-VCO_GUI::VCO_GUI(JuceGraphModel& model)
+VCO_GUI::VCO_GUI(Node& model)
     : JuceAudioNode (model, 0,1)
 
 {

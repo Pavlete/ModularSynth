@@ -31,7 +31,7 @@ void OutVCA::process()
 }
 
 
-OutVCA_GUI::OutVCA_GUI(JuceGraphModel& model)
+OutVCA_GUI::OutVCA_GUI(const Node& model)
     :JuceAudioNode (model, 1, 0)
 {
     setSize(125, 125);
