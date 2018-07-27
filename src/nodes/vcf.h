@@ -21,11 +21,9 @@ private:
 class VCF_GUI :public JuceAudioNode
 {
 public:
-    VCF_GUI(const Node& model);
+    VCF_GUI(SharedNode model);
 
     void setContent(Rectangle<int> &r) override;
-
-    GraphFactory getModule() override;
 
     TextButton m_button;
 };

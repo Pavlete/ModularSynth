@@ -2,9 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "synthmodel.h"
-#include "nodes/common/juceaudionode.h"
-
+#include "nodes/common/synthmodel.h"
 
 class ModuleMenu: public TreeView
 {
@@ -23,7 +21,7 @@ class ModuleMenu: public TreeView
 
     struct Module: public TreeViewItem
     {
-        Module(std::string name, SynthModel path)
+        Module(std::string name, const SynthModel& path)
             : m_moduleName(name)
             , m_synthPath(path)
         {}
@@ -41,11 +39,10 @@ class ModuleMenu: public TreeView
     };
 
 public:
-    ModuleMenu(SynthModel flow);
+    ModuleMenu(const SynthModel& flow);
 
     void paint(Graphics &g) override;
 
-    template<class ModuleClass>
     void addElement(std::string name, std::string category);
 
 private:
@@ -58,27 +55,3 @@ private:
 //---------------------------------------------------------------------------------//
 
 
-
-template<class ModuleClass>
-void ModuleMenu::addElement(std::string name, std::string category)
-{
-    auto root = getRootItem();
-    Category* categoryItem = nullptr;
-    for(int i = 0; i < root->getNumSubItems(); i++)
-    {
-        auto item = dynamic_cast<Category*>(root->getSubItem(i));
-        if(item && item->m_categoryName == category)
-        {
-            categoryItem = item;
-            break;
-        }
-    }
-
-    if(!categoryItem)
-    {
-        categoryItem = new Category(category);
-        root->addSubItem(categoryItem);
-    }
-
-    categoryItem->addSubItem(new Module(name, m_path));
-}

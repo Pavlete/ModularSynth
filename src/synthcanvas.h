@@ -8,15 +8,15 @@ class SynthCanvas : public Component
                   , public SynthModel::Listener
 {
 public:
-    SynthCanvas(SynthModel synth);
+    SynthCanvas(const SynthModel& synth);
 
     void paint(Graphics &g) override;
     void mouseDown(const MouseEvent &event) override;
 
-    void nodeAdded(Node mod) override;
-    void connectionAdded(Connection connection) override;
+    void nodeAdded(const SharedNode& mod) override;
+    void connectionAdded(const Connection& connection) override;
 
-    void connectionRemoved(Connection connection) override;
+    void connectionRemoved(const Connection& connection) override;
 
 private:
     SynthModel m_synth;

@@ -6,9 +6,9 @@ namespace  {
 }
 
 
-Socket::Socket(Node model, uint32_t index, Direction dir, OngoingConnection& ongoing)
-    : m_synthModel(model.getParentSynth())
-    , m_nodeId(model.moduleId)
+Socket::Socket(SharedNode model, uint32_t index, Direction dir, OngoingConnection& ongoing)
+    : m_synthModel(model->getParentSynth())
+    , m_nodeId(model->moduleId)
     , m_index(index)
     , m_direction(dir)
     , m_opositeSocket(nullptr)
@@ -34,9 +34,10 @@ void Socket::mouseDrag(const MouseEvent &event)
     auto connector = getSocketUnderCursor(event.getPosition());
 
     if(connector &&
-       connector->m_nodeId != m_nodeId &&
-       connector->getDirection() != getDirection() &&
-       !m_opositeSocket)
+       connector->m_nodeId != m_nodeId)// &&
+       //connector->getDirection() != getDirection() &&
+       //connector->m_currentConnection.expired() &&
+       //!m_opositeSocket)
     {
         m_opositeSocket = connector;
         m_opositeSocket->startMouseEnterAnimation();
@@ -72,10 +73,10 @@ void Socket::mouseUp(const MouseEvent&)
     }
 
     getDirection() == Direction::Output?
-                m_synthModel.addConnection({m_nodeId, m_index,
-                                            m_opositeSocket->m_nodeId, m_opositeSocket->m_index}):
-                m_synthModel.addConnection({m_opositeSocket->m_nodeId, m_opositeSocket->m_index,
-                                            m_nodeId, m_index});
+                m_synthModel.addConnection(m_nodeId, m_index,
+                                            m_opositeSocket->m_nodeId, m_opositeSocket->m_index):
+                m_synthModel.addConnection(m_opositeSocket->m_nodeId, m_opositeSocket->m_index,
+                                            m_nodeId, m_index);
 }
 
 void Socket::mouseEnter(const MouseEvent&)

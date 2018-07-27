@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 #include <algorithm>
 #include <atomic>
@@ -15,8 +14,8 @@ static const int INVALID_NODE_ID = -1;
 
 struct ConnectionPoint
 {
-    int32_t nodeId;
-    uint32_t portNumber;
+    int nodeId;
+    int portNumber;
 
     bool operator==(const ConnectionPoint& other)
     {
@@ -46,9 +45,9 @@ class ProcessGraph
 public:
     class Node;
 
-    int32_t addNode(std::unique_ptr<Node> node){
-        auto result = m_nodes.emplace(++m_currentId, std::move(node));
-        return result.second? result.first->first : INVALID_NODE_ID;
+    bool addNode(int nodeID, std::unique_ptr<Node> node){
+        auto result = m_nodes.emplace(nodeID, std::move(node));
+        return result.second;
     }
 
     bool removeNode(int nodeId)
@@ -282,12 +281,12 @@ public:
         , m_outEdges(numOut)
     {}
 
-    ~Node() {}
+    virtual ~Node() = default;
 
     virtual void process() = 0;
 
 protected:
-    T* getInputData(uint32_t index)
+    T* getInputData(int index)
     {
         if(m_inEdges.size() < index)
         {
@@ -303,7 +302,7 @@ protected:
         return ptr->getData();
     }
 
-    T* getOutputData(uint32_t index)
+    T* getOutputData(int index)
     {
         if(m_outEdges.size() < index)
         {

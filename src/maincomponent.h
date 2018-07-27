@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "synthmodel.h"
+#include "nodes/common/synthmodel.h"
 #include "modularsynth.h"
 #include "modularvoice.h"
 #include "synthcanvas.h"
@@ -33,8 +33,6 @@ private:
 
     //==========================================================================
     SynthModel m_synth;
-
-    JuceGraphModel m_synthPath;
 
     ModularSynth m_modularSynth;
     MidiKeyboardState m_keyboardState;

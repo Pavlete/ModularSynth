@@ -3,7 +3,6 @@
 #include "juceconnection.h"
 #include "ongoingconnection.h"
 
-
 class Socket: public Component
             , public ComponentListener
 {
@@ -16,7 +15,7 @@ public:
         Output
     };
 
-    Socket(Node model, uint32_t index, Direction dir, OngoingConnection& ongoing);
+    Socket(SharedNode model, uint32_t index, Direction dir, OngoingConnection& ongoing);
 
     void mouseDrag(const MouseEvent &event) override;
     void mouseDown(const MouseEvent &event) override;
@@ -33,7 +32,6 @@ public:
 
     void setConnection(std::shared_ptr<JuceConnection> con);
 
-    processGraph::ConnectionPoint getPoint() const {return {m_nodeId, m_index};}
     Direction getDirection() const {return m_direction;}
 
 private:

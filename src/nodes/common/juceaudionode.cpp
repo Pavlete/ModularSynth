@@ -1,9 +1,6 @@
 #include "juceaudionode.h"
 
-#include "../../graph/processgraph.h"
-
-
-JuceAudioNode::JuceAudioNode(Node model,
+JuceAudioNode::JuceAudioNode(const SharedNode& model,
                              int inputNumber,
                              int outputNumber)
     : m_model(model)
@@ -22,15 +19,14 @@ JuceAudioNode::JuceAudioNode(Node model,
         addAndMakeVisible(m_outConnectors.back().get());
     }
 
-
-    setBounds(model.moduleX,model.moduleY, getWidth(),getHeight());
+    setBounds(m_model->moduleX, m_model->moduleY, getWidth(),getHeight());
 }
 
 std::string JuceAudioNode::getConnectorName(int) {return "";}
 
 int JuceAudioNode::getNodeID() const
 {
-    return m_model.moduleId;
+    return m_model->moduleId;
 }
 
 void JuceAudioNode::paint(Graphics &g)
@@ -62,8 +58,8 @@ void JuceAudioNode::resized()
 
 void JuceAudioNode::moved()
 {
-    m_model.moduleX = getBounds().getX();
-    m_model.moduleY = getBounds().getY();
+    m_model->moduleX = getBounds().getX();
+    m_model->moduleY = getBounds().getY();
 }
 
 void JuceAudioNode::parentHierarchyChanged()

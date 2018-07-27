@@ -3,8 +3,9 @@
 #include "nodes/vco.h"
 
 
+
 MainContentComponent::MainContentComponent()
-    : m_modularSynth  (m_keyboardState, m_synthPath.getObservable())
+    : m_modularSynth  (m_keyboardState, m_synth)
     , m_keyboardComponent (m_keyboardState, MidiKeyboardComponent::horizontalKeyboard)
     , m_canvas (m_synth)
 {
@@ -34,16 +35,16 @@ MainContentComponent::MainContentComponent()
 
     addAndMakeVisible(m_canvas);
 
-    setSize (800, 600);
+    setSize (1000, 1000);
     startTimer (400);
 
-    m_synth.loadFromFile(File::getSpecialLocation (File::userDesktopDirectory).getChildFile ("Hola.xml"));
+    m_synth.restore();
 }
 
 MainContentComponent::~MainContentComponent()
 {
     shutdownAudio();
-    m_synth.saveToFile(File::getSpecialLocation (File::userDesktopDirectory).getChildFile ("Hola.xml"));
+    m_synth.save( );
 }
 
 void MainContentComponent::resized()

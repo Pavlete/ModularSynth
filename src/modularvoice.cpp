@@ -1,16 +1,8 @@
 #include "modularvoice.h"
 
-#include "graph/audiographobservable.h"
-
-ModularVoice::ModularVoice(AudioGraphObservable<AudioBufferWrapper>& observable)
-    : m_observable(observable)
+ModularVoice::ModularVoice(SynthModel& model)
 {
-    m_observable.registerGraph(&m_graph);
-}
-
-ModularVoice::~ModularVoice()
-{
-    m_observable.unregisterGraph(&m_graph);
+    model.addListener(this);
 }
 
 bool ModularVoice::canPlaySound(SynthesiserSound *sound)
@@ -44,4 +36,25 @@ void ModularVoice::renderNextBlock(AudioBuffer<float> &outputBuffer,
 bool ModularVoice::isVoiceActive() const
 {
     return m_graph.isActive();
+}
+
+void ModularVoice::nodeAdded(const SharedNode &node)
+{
+    m_graph.addNode(node->moduleId, node->getAudioFactory()());
+    if (node->isInitModule())
+    {
+        m_graph.setInitNode({node->moduleId, node->initPort()});
+    }
+}
+
+void ModularVoice::connectionAdded(const Connection &conn)
+{
+    m_graph.addConnection({conn.connectionOutID(), conn.connectionOutPort()},
+                          {conn.connectionInID(), conn.connectionInPort()});
+}
+
+void ModularVoice::connectionRemoved(const Connection &conn)
+{
+    m_graph.removeConnection({conn.connectionOutID(), conn.connectionOutPort()},
+                             {conn.connectionInID(), conn.connectionInPort()});
 }

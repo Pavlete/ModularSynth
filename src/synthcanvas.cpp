@@ -1,22 +1,30 @@
 #include <memory>
 
-#include "synthcanvas.h"
-
+#include "nodes/nodefactory.h"
+#include "nodes/outvca.h"
 #include "nodes/vcf.h"
 #include "nodes/vco.h"
-#include "nodes/outvca.h"
 
-SynthCanvas::SynthCanvas(SynthModel synth)
+#include "synthcanvas.h"
+
+SynthCanvas::SynthCanvas(const SynthModel& synth)
     : m_synth(synth)
     , m_menu (synth)
 {
     m_synth.addListener(this);
     addChildComponent(m_menu);
-    m_menu.addElement<VCO_GUI>("VCO", "Oscillator");
-    m_menu.addElement<VCF_GUI>("VCF", "Filter");
-    //path.addInitNode(std::make_unique<OutVCA_GUI>(path), 600, 100, 0);
-}
 
+    auto a = NodeFactory::getCategories();
+
+    for(auto element : NodeFactory::getCategories())
+    {
+        if(element.first.empty())
+        {
+            continue;
+        }
+        m_menu.addElement(element.second, element.first);
+    }
+}
 
 void SynthCanvas::paint(Graphics &g)
 {
@@ -38,31 +46,34 @@ void SynthCanvas::mouseDown(const MouseEvent &event)
     }
 }
 
-void SynthCanvas::nodeAdded(Node mod)
+void SynthCanvas::nodeAdded(const SharedNode& mod)
 {
-    m_nodes.push_back(std::make_unique<VCF_GUI>(mod));
+    m_nodes.push_back(mod->getUIFactory()());
     auto newNode = m_nodes.back().get();
     addAndMakeVisible(newNode);
 }
 
-void SynthCanvas::connectionAdded(Connection con)
-{
+void SynthCanvas::connectionAdded(const Connection& con)
+{    
     m_connections.push_back(std::make_shared<JuceConnection>(con));
     auto newConnection = m_connections.back();
     addAndMakeVisible(newConnection.get());
     newConnection->setAlwaysOnTop(true);
 
-    auto outNode = findNodeByID(con.connectionOutID);
-    auto inNode = findNodeByID(con.connectionInID);
+    auto outNode = findNodeByID(con.connectionOutID());
+    auto inNode = findNodeByID(con.connectionInID());
 
-    (*outNode)->setConnection(newConnection, Socket::Direction::Output);
-    (*inNode)->setConnection(newConnection, Socket::Direction::Input);
+    if(outNode != m_nodes.end() && inNode != m_nodes.end())
+    {
+        (*outNode)->setConnection(newConnection, Socket::Direction::Output);
+        (*inNode)->setConnection(newConnection, Socket::Direction::Input);
+    }
 }
 
-void SynthCanvas::connectionRemoved(Connection connection)
+void SynthCanvas::connectionRemoved(const Connection& connection)
 {
-    auto conn = findConnection(connection.connectionOutID,
-                               connection.connectionOutPort);
+    auto conn = findConnection(connection.connectionOutID(),
+                               connection.connectionOutPort());
     removeChildComponent(conn->get());
     m_connections.erase(conn);
 }

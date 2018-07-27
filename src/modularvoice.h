@@ -12,14 +12,12 @@ struct ModularSound : public SynthesiserSound
 };
 
 
-class ModularVoice: public SynthesiserVoice
+class ModularVoice
+        : public SynthesiserVoice
+        , public SynthModel::Listener
 {
 public:
-    using AudioGraphType = processGraph::AudioProcessGraph<AudioBufferWrapper>;
-    using NodeType = processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode;
-
-    ModularVoice(AudioGraphObservable<AudioBufferWrapper>& observable);
-    ~ModularVoice();
+    ModularVoice(SynthModel& model);
 
     bool canPlaySound(SynthesiserSound *sound) override;
 
@@ -42,7 +40,10 @@ public:
 
 private:
     processGraph::AudioProcessGraph<AudioBufferWrapper> m_graph;
-    AudioGraphObservable<AudioBufferWrapper>& m_observable;
+
+    void nodeAdded(const SharedNode& node) override;
+    void connectionAdded(const Connection&) override;
+    void connectionRemoved(const Connection&) override;
 
     float m_outAmpl;
 };

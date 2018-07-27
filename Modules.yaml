@@ -1,0 +1,51 @@
+modules:
+
+  - name: OutVCA
+    category: Output
+    inputs:
+    - SignalInput
+
+    outputs:
+    - SignalOutput
+
+    settings:
+    - name: amplitude
+      type: float
+      default: -20
+
+
+  - name: VCO
+    category: Oscillator
+    inputs:
+    - AmplitudeMod
+    - FreqMod
+
+    outputs:
+    - SignalOutput
+
+    settings:
+    - name: offset
+      type: float
+      default: 0
+
+    - name: waveIndex
+      type: int
+      default: 0  
+
+  - name: Mixer
+    category: Aux
+    inputs:
+    - Input1
+    - Input2
+
+    outputs:
+    - SignalOutput
+
+    settings:
+    - name: input1Amplitude
+      type: int
+      default: 0
+
+    - name: input2Amplitude
+      type: int
+      default: 0

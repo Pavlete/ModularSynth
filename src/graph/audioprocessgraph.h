@@ -14,6 +14,7 @@ public:
         AudioNode(int inNumber, int outNumber)
             : ProcessGraph<DataType>::Node(inNumber,outNumber)
         {}
+        virtual ~AudioNode() = default;
         virtual void setActive(float) {}
         virtual void setInactive() {}
         virtual bool isActive() { return false; }
@@ -57,14 +58,14 @@ public:
         return element != m_graphIds.end();
     }
 
-    int32_t addNode(std::unique_ptr<AudioNode> node)
+    bool addNode(int nodeID, std::unique_ptr<AudioNode> node)
     {
-        auto id = m_graph.addNode(std::move(node));
-        if(id != INVALID_NODE_ID)
+        auto ret = m_graph.addNode(nodeID, std::move(node));
+        if(ret)
         {
-            m_graphIds.insert(id);
+            m_graphIds.insert(nodeID);
         }
-        return id;
+        return ret;
     }
 
     bool removeNode(int nodeId)

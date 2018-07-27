@@ -1,8 +1,6 @@
 #include "modulemenu.h"
 
-#include "nodes/common/audiographmodel.h"
-
-ModuleMenu::ModuleMenu(SynthModel path)
+ModuleMenu::ModuleMenu(const SynthModel& path)
     : m_rootElement("")
     , m_path(path)
 {
@@ -35,6 +33,28 @@ void ModuleMenu::Module::itemClicked(const MouseEvent&)
     auto pos = menu->getBoundsInParent().getPosition();
     menu->setVisible(false);
 
+    m_synthPath.addModule(pos.getX(), pos.getY(), m_moduleName);
+}
 
-    m_synthPath.addModule({pos.getX(), pos.getY(), m_moduleName});
+void ModuleMenu::addElement(std::string name, std::string category)
+{
+    auto root = getRootItem();
+    Category* categoryItem = nullptr;
+    for(int i = 0; i < root->getNumSubItems(); i++)
+    {
+        auto item = dynamic_cast<Category*>(root->getSubItem(i));
+        if(item && item->m_categoryName == category)
+        {
+            categoryItem = item;
+            break;
+        }
+    }
+
+    if(!categoryItem)
+    {
+        categoryItem = new Category(category);
+        root->addSubItem(categoryItem);
+    }
+
+    categoryItem->addSubItem(new Module(name, m_path));
 }

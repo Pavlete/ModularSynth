@@ -3,22 +3,16 @@
 #include "audiobufferwrapper.h"
 #include "socket.h"
 
-#include "../../graph/audioprocessgraph.h"
-
-using AudioGraphNode = processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode;
-using GraphFactory = std::function<std::unique_ptr<AudioGraphNode>()>;
 
 class JuceAudioNode: public Component
 {
 public:
-    JuceAudioNode(Node model,int inputNumber, int outputNumber);
+    JuceAudioNode(const SharedNode& model,int inputNumber, int outputNumber);
 
     virtual ~JuceAudioNode() = default;
 
     virtual void setContent(Rectangle<int> &r) = 0;
     virtual std::string getConnectorName(int );
-
-    virtual GraphFactory getModule() = 0;
 
     int getNodeID() const;
 
@@ -36,7 +30,7 @@ private:
     std::vector<std::unique_ptr<Socket>> m_inConnectors;
     std::vector<std::unique_ptr<Socket>> m_outConnectors;
 
-    Node m_model;
+    SharedNode m_model;
 
     ComponentDragger m_dragger;
     OngoingConnection m_ongoing;

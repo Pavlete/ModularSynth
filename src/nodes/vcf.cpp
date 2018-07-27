@@ -1,7 +1,9 @@
+#include "nodefactory.h"
 #include "vcf.h"
 
 namespace
 {
+//REGISTER_FACTORY(Filters, VCF)
 const int SignalInput = 0;
 const int SignalOutput= 0;
 }
@@ -37,7 +39,7 @@ void VCF::process()
 //---------------------------------------------------------------------//
 
 
-VCF_GUI::VCF_GUI(const Node& model)
+VCF_GUI::VCF_GUI(SharedNode model)
     :JuceAudioNode (model, 1, 1)
 {
     addAndMakeVisible(m_button);
@@ -48,9 +50,4 @@ VCF_GUI::VCF_GUI(const Node& model)
 void VCF_GUI::setContent(Rectangle<int> &r)
 {
     m_button.setBounds(r);
-}
-
-GraphFactory VCF_GUI::getModule()
-{
-    return [](){return std::make_unique<VCF>();};
 }

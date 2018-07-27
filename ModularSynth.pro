@@ -26,18 +26,18 @@ SOURCES += \
     src/nodes/common/juceaudionode.cpp \
     src/nodes/common/juceconnection.cpp \
     src/nodes/common/socket.cpp \
-    src/synthmodel.cpp \
-    src/nodes/common/ongoingconnection.cpp
+    src/nodes/common/synthmodel.cpp \
+    src/nodes/common/ongoingconnection.cpp \
+    src/nodes/common/node.cpp \
+    src/nodes/common/connection.cpp \
+    src/nodes/mixer.cpp
 
 
 HEADERS += \
     src/maincomponent.h \
-    src/nodes/common/nodeview.h\
-    src/nodes/common/nodemodel.h\
     src/modularvoice.h \
     src/graph/audioprocessgraph.h \
     src/graph/processgraph.h \
-    src/graph/audiographobservable.h \
     src/modularsynth.h \
     src/soundProc/adsrenvelope.h \
     src/soundProc/amplifier.h \
@@ -53,11 +53,15 @@ HEADERS += \
     src/nodes/vcf.h \
     src/nodes/common/juceaudionode.h \
     src/nodes/common/juceconnection.h \
-    src/nodes/common/audiographmodel.h \
     src/nodes/common/socket.h \
     src/nodes/common/settingsobserver.h \
-    src/synthmodel.h \
-    src/nodes/common/ongoingconnection.h
+    src/nodes/common/synthmodel.h \
+    src/nodes/common/ongoingconnection.h \
+    src/nodes/nodefactory.h \
+    src/nodes/common/node.h \
+    src/nodes/common/connection.h \
+    src/nodes/common/identifiers.h \
+    src/nodes/mixer.h
 
 
 
