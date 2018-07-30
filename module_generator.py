@@ -27,7 +27,6 @@ class Module:
 
 		stream.write('\tprivate:\n\t\tvoid valueTreePropertyChanged (ValueTree&, const Identifier&) override;\n\t};\n\n')
 
-		stream.write('\t{0}_Model(int x, int y);\n'.format(self.name))
 		stream.write('\t{0}_Model(const ValueTree&);\n\n'.format(self.name))
 
 		for setting in self.settings:
@@ -47,8 +46,6 @@ class Module:
 
 		stream.write('}\n\n')
 
-		stream.write('{0}_Model::{0}_Model(int x, int y)\n\t: Node(x, y, ModuleName)\n{{ }}\n\n'.format(self.name))
-		
 		stream.write('{0}_Model::{0}_Model(const ValueTree &tree)\n\t: Node(tree)\n{{ }}\n\n'.format(self.name))
 
 		for setting in self.settings:
@@ -179,7 +176,8 @@ class Module:
 		stream.write('\n')
 
 	def generateSource(self, stream):
-		stream.write('#include "{0}.h"\n\n'.format(self.name.lower()))
+		stream.write('#include "{0}.h"\n\n#include "nodefactory.h"\n\n'.format(self.name.lower()))
+
 		self.generateNamespace(stream)
 		stream.write("//------------------//\n\n")
 		self.generateModelSource(stream)

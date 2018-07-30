@@ -28,7 +28,7 @@ void ModularVoice::renderNextBlock(AudioBuffer<float> &outputBuffer,
                                    int startSample,
                                    int numSamples)
 {
-    AudioBufferWrapper buff = {&outputBuffer, numSamples, startSample};
+    AudioBufferWrapper buff = {outputBuffer, numSamples, startSample};
     m_graph.proccessData(buff);
     outputBuffer.applyGain(m_outAmpl);
 }

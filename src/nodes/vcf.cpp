@@ -1,4 +1,3 @@
-#include "nodefactory.h"
 #include "vcf.h"
 
 namespace
@@ -25,13 +24,14 @@ void VCF::process()
         return;
     }
 
-    outBuffer->buffer()->clear();
+    outBuffer->clear();
 
-    for(int i = 0; i < inBuffer->numberOfSamples(); i++)
+    for(int i = 0; i < inBuffer->sampleCount(); i++)
     {
-        auto next = m_filter.filter(inBuffer->buffer()->getSample(0,i + outBuffer->startSamples()));
-        outBuffer->buffer()->addSample(0, i + inBuffer->startSamples(), next);
-        outBuffer->buffer()->addSample(1, i + inBuffer->startSamples(), next);
+        auto nextLeft = m_filter.filter(inBuffer->sample(0,i));
+        auto nextRight = m_filter.filter(inBuffer->sample(1,i));
+        outBuffer->addSample(0, i, nextLeft);
+        outBuffer->addSample(1, i, nextRight);
     }
 }
 

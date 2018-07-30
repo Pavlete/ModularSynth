@@ -6,48 +6,27 @@
 
 #include "common/node.h"
 
-class NodeFactory
+class NodeCatalog
 {
-    using NodeFactoryFromCoords = std::function< std::shared_ptr< Node >(int x, int y) >;
-    using TreeNodeFactoryFromTree = std::function< std::shared_ptr< Node >(const ValueTree& tree) >;
-    using NodeModelMap = std::map< std::string, std::pair<NodeFactoryFromCoords, TreeNodeFactoryFromTree> >;
-    using CategoriesMap = std::map< std::string, std::string >;
+    using NodeFactory = std::function< std::shared_ptr< Node >(const ValueTree& tree) >;
+    using NodeModelMap = std::map< String, NodeFactory >;
+    using CategoriesMap = std::map< String, String >;
 
 public:
-    NodeFactory(const std::string& name,
-                const std::string& category,
-                const NodeFactoryFromCoords& nodeFactory,
-                const TreeNodeFactoryFromTree& treeFactory)
+    NodeCatalog(const String& name,
+                const String& category,
+                const NodeFactory& treeFactory)
     {
-        getAudioNodeMap().insert({name, {nodeFactory, treeFactory}});
+        getAudioNodeMap().insert({name, treeFactory});
         getCategoriesMap().insert({category, name});
     }
 
-    static NodeFactoryFromCoords getNodeCoordsFactory(std::string name)
+    static std::shared_ptr< Node > getNode(const ValueTree& tree)
     {
-        auto& map = getAudioNodeMap();
-        auto item = map.find(name);
-        if (item == map.end())
-        {
-            return nullptr;
-        }
-
-        return item->second.first;
+        auto map = getAudioNodeMap();
+        auto item = map.find(tree.getType().toString());
+        return item == map.end()? nullptr : item->second(tree);
     }
-
-    static TreeNodeFactoryFromTree getNodeTreeFactory(std::string name)
-    {
-        auto& map = getAudioNodeMap();
-        auto item = map.find(name);
-        if (item == map.end())
-        {
-            return nullptr;
-        }
-
-        return item->second.second;
-    }
-
-
     static const CategoriesMap& getCategories()
     {
         return getCategoriesMap();
@@ -59,16 +38,14 @@ private:
         static NodeModelMap funcmap;
         return funcmap;
     }
-
     static CategoriesMap& getCategoriesMap()
     {
         static CategoriesMap funcmap;
         return funcmap;
     }
-
 };
 
 #define REGISTER_FACTORY( Category, Name ) \
-    static NodeFactory fact(#Name, #Category, \
-                            [](int x, int y){return std::make_shared< Name##_Model >(x,y);},\
+    static NodeCatalog fact(#Name, #Category, \
                             [](const ValueTree& tree){return std::make_shared< Name##_Model >(tree);});
+

@@ -17,7 +17,6 @@ struct VCO_Model
         void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
     };
 
-    VCO_Model(int x, int y);
     VCO_Model(const ValueTree&);
 
     void setOffset(float value);

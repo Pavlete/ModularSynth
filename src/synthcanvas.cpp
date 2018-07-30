@@ -1,10 +1,6 @@
 #include <memory>
 
 #include "nodes/nodefactory.h"
-#include "nodes/outvca.h"
-#include "nodes/vcf.h"
-#include "nodes/vco.h"
-
 #include "synthcanvas.h"
 
 SynthCanvas::SynthCanvas(const SynthModel& synth)
@@ -14,11 +10,11 @@ SynthCanvas::SynthCanvas(const SynthModel& synth)
     m_synth.addListener(this);
     addChildComponent(m_menu);
 
-    auto a = NodeFactory::getCategories();
+    auto a = NodeCatalog::getCategories();
 
-    for(auto element : NodeFactory::getCategories())
+    for(auto element : NodeCatalog::getCategories())
     {
-        if(element.first.empty())
+        if(element.first.isEmpty())
         {
             continue;
         }

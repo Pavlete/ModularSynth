@@ -15,7 +15,6 @@ struct Mixer_Model
 		void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
 	};
 
-	Mixer_Model(int x, int y);
 	Mixer_Model(const ValueTree&);
 
 	void setInput1amplitude(int value);

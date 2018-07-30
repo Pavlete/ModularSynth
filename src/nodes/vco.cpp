@@ -1,5 +1,6 @@
 #include "vco.h"
 
+#include "nodefactory.h"
 #include "../soundProc/waves.h"
 
 namespace
@@ -36,10 +37,6 @@ void VCO_Model::Listener::valueTreePropertyChanged(ValueTree &tree, const Identi
         waveIndexChanged(tree.getProperty(id));
     }
 }
-
-VCO_Model::VCO_Model(int x, int y)
-    : Node(x, y, ModuleName)
-{ }
 
 VCO_Model::VCO_Model(const ValueTree &tree)
     : Node(tree)
@@ -124,8 +121,8 @@ void VCO::process()
 {
     updateSettings();
 
-    auto AmplitudeModBuffer = getInputData(AmplitudeMod);
-    auto FreqModBuffer = getInputData(FreqMod);
+    //auto AmplitudeModBuffer = getInputData(AmplitudeMod);
+    //auto FreqModBuffer = getInputData(FreqMod);
 
     auto SignalOutputBuffer = getOutputData(SignalOutput);
 
@@ -134,13 +131,13 @@ void VCO::process()
         return;
     }
 
-    SignalOutputBuffer->buffer()->clear();
+    SignalOutputBuffer->clear();
 
-    for(int i = 0; i < SignalOutputBuffer->numberOfSamples(); i++)
+    for(int i = 0; i < SignalOutputBuffer->sampleCount(); i++)
     {
         auto sample = m_signal.nextSample();
-        SignalOutputBuffer->buffer()->addSample(0,i + SignalOutputBuffer->startSamples(), sample*0.25f);
-        SignalOutputBuffer->buffer()->addSample(1,i + SignalOutputBuffer->startSamples(), sample*0.25f);
+        SignalOutputBuffer->addSample(0, i, sample * 0.25f);
+        SignalOutputBuffer->addSample(1,i, sample * 0.25f);
     }
 }
 

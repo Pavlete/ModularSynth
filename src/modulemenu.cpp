@@ -36,7 +36,7 @@ void ModuleMenu::Module::itemClicked(const MouseEvent&)
     m_synthPath.addModule(pos.getX(), pos.getY(), m_moduleName);
 }
 
-void ModuleMenu::addElement(std::string name, std::string category)
+void ModuleMenu::addElement(String name, String category)
 {
     auto root = getRootItem();
     Category* categoryItem = nullptr;

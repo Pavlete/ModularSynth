@@ -6,7 +6,6 @@
 #include "identifiers.h"
 #include "node.h"
 
-#include "../nodefactory.h"
 
 using SharedNode = std::shared_ptr<Node>;
 
@@ -31,11 +30,10 @@ public:
     };
 
     SynthModel();
-    SynthModel(ValueTree synth);
 
     void addListener(Listener* listener);
 
-    void addModule(int x, int y, std::string module);
+    void addModule(int x, int y, String module);
     void addConnection(int outID, int outPort, int inID, int inPort);
 
     void removeConnection(Connection& connection);
@@ -43,13 +41,14 @@ public:
     void save();
     void restore();
 private:
+    SynthModel(ValueTree synth);
+
     ValueTree m_tree;
     ValueTree getNodesTree();
     ValueTree getConnectionTree();
 
     ValueTree generateConnectionTree(int outID, int outPort, int inID, int inPort);
-
-    bool isValid;
+    ValueTree basicNodeTree(int x, int y, String type);
 
     int getNextIndex();
 

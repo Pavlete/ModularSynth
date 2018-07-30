@@ -1,5 +1,7 @@
 #include "mixer.h"
 
+#include "nodefactory.h"
+
 namespace
 {
 
@@ -33,10 +35,6 @@ void Mixer_Model::Listener::valueTreePropertyChanged(ValueTree &tree, const Iden
 		input2AmplitudeChanged(tree.getProperty(id));
 	}
 }
-
-Mixer_Model::Mixer_Model(int x, int y)
-	: Node(x, y, ModuleName)
-{ }
 
 Mixer_Model::Mixer_Model(const ValueTree &tree)
 	: Node(tree)
@@ -120,30 +118,30 @@ void Mixer::process()
 		return;
 	}
 
-    SignalOutputBuffer->buffer()->clear();
+    SignalOutputBuffer->clear();
 
 	//Processing goes here
 
-    for(int i = 0; i < SignalOutputBuffer->numberOfSamples(); i++)
+    for(int i = 0; i < SignalOutputBuffer->sampleCount(); i++)
     {
         auto input1Right = 0.0f;
         auto input1Left = 0.0f;
         if(Input1Buffer)
         {
-            input1Right = Input1Buffer->buffer()->getSample(0, i + SignalOutputBuffer->startSamples()) * m_input1attenuation;
-            input1Left = Input1Buffer->buffer()->getSample(1, i + SignalOutputBuffer->startSamples()) * m_input1attenuation;
+            input1Right = Input1Buffer->sample(0, i) * m_input1attenuation;
+            input1Left = Input1Buffer->sample(1, i) * m_input1attenuation;
         }
 
         auto input2Right = 0.0f;
         auto input2Left = 0.0f;
         if(Input2Buffer)
         {
-            input2Right = Input2Buffer->buffer()->getSample(0, i + SignalOutputBuffer->startSamples()) * m_input2attenuation;
-            input2Left = Input2Buffer->buffer()->getSample(1, i + SignalOutputBuffer->startSamples()) * m_input2attenuation;
+            input2Right = Input2Buffer->sample(0, i) * m_input2attenuation;
+            input2Left = Input2Buffer->sample(1, i) * m_input2attenuation;
         }
 
-        SignalOutputBuffer->buffer()->addSample(0,i + SignalOutputBuffer->startSamples(), input1Right + input2Right);
-        SignalOutputBuffer->buffer()->addSample(1,i + SignalOutputBuffer->startSamples(), input1Left + input2Left);
+        SignalOutputBuffer->addSample(0,i, input1Right + input2Right);
+        SignalOutputBuffer->addSample(1,i, input1Left + input2Left);
     }
 }
 

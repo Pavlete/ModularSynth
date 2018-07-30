@@ -1,6 +1,7 @@
 #include <random>
 
 #include "synthmodel.h"
+#include "../nodefactory.h"
 
 namespace
 {
@@ -27,9 +28,8 @@ void SynthModel::Listener::valueTreeChildAdded(ValueTree &parent, ValueTree &add
     }
     else if (parent.hasType(IDs::Nodes))
     {
-        auto node = NodeFactory::getNodeTreeFactory(added.getType().toString().toStdString())(added);
-        nodeAdded(node);
-    }    
+        nodeAdded(NodeCatalog::getNode(added));
+    }
 }
 
 void SynthModel::Listener::valueTreeChildRemoved(ValueTree &parent, ValueTree &removed, int)
@@ -46,36 +46,26 @@ void SynthModel::Listener::valueTreeChildRemoved(ValueTree &parent, ValueTree &r
 
 SynthModel::SynthModel()
     : m_tree(IDs::SynthType)
-    , isValid(false)
 {
     ValueTree nodes(IDs::Nodes);
     ValueTree connections(IDs::Connections);
     m_tree.addChild(nodes, IDs::NodesIndex, nullptr);
     m_tree.addChild(connections, IDs::ConnectionsIndex, nullptr);
-
-    isValid = true;
 }
 
-SynthModel::SynthModel(ValueTree synth)
-    : isValid(false)
-{
-    if(synth.hasType(IDs::SynthType))
-    {
-        m_tree = synth;
-        isValid = true;
-    }
-}
+SynthModel::SynthModel(ValueTree tree)
+    : m_tree(tree)
+{ }
 
 void SynthModel::addListener(SynthModel::Listener *listener)
 {
     m_tree.addListener(listener);
 }
 
-void SynthModel::addModule(int x, int y, std::string name)
-{    
-    auto module = NodeFactory::getNodeCoordsFactory(name)(x,y);
-    module->moduleId = getNextIndex();
-    getNodesTree().addChild(module->m_tree, -1, nullptr);
+void SynthModel::addModule(int x, int y, String name)
+{
+    auto tree = basicNodeTree(x, y, name);
+    getNodesTree().addChild(tree, -1, nullptr);
 }
 
 void SynthModel::addConnection(int outID, int outPort, int inID, int inPort)
@@ -118,24 +108,26 @@ void SynthModel::restore()
         return;
     }
 
-    SynthModel otherSynth( SynthModel::loadFromFile(file) );
-    if(otherSynth.isValid)
+    auto synthTree = SynthModel::loadFromFile(file);
+    if (!synthTree.hasType(IDs::SynthType))
     {
-        auto nodes = otherSynth.getNodesTree();
-        while(nodes.getNumChildren() > 0)
-        {
-            ValueTree v = *nodes.begin();
-            nodes.removeChild(v, nullptr);
-            getNodesTree().addChild(v, -1, nullptr);
-        }
+        //TODO get a default tree
+    }
 
-        auto connections = otherSynth.getConnectionTree();
-        while(connections.getNumChildren() > 0)
-        {
-            ValueTree v = *connections.begin();
-            connections.removeChild(v, nullptr);
-            getConnectionTree().addChild(v, -1, nullptr);
-        }
+    auto nodes = synthTree.getChild(IDs::NodesIndex);
+    while(nodes.getNumChildren() > 0)
+    {
+        ValueTree v = *nodes.begin();
+        nodes.removeChild(v, nullptr);
+        getNodesTree().addChild(v, -1, nullptr);
+    }
+
+    auto connections = synthTree.getChild(IDs::ConnectionsIndex);
+    while(connections.getNumChildren() > 0)
+    {
+        ValueTree v = *connections.begin();
+        connections.removeChild(v, nullptr);
+        getConnectionTree().addChild(v, -1, nullptr);
     }
 }
 
@@ -156,6 +148,15 @@ ValueTree SynthModel::generateConnectionTree(int outID, int outPort, int inID, i
     tree.setProperty(IDs::OutPort, static_cast<int>(outPort), nullptr);
     tree.setProperty(IDs::InId, inID, nullptr);
     tree.setProperty(IDs::InPort, static_cast<int>(inPort), nullptr);
+    return tree;
+}
+
+ValueTree SynthModel::basicNodeTree(int x, int y, String type)
+{
+    ValueTree tree(type);
+    tree.setProperty(IDs::NodeID, getNextIndex(), nullptr);
+    tree.setProperty(IDs::X, x, nullptr);
+    tree.setProperty(IDs::Y, y, nullptr);
     return tree;
 }
 

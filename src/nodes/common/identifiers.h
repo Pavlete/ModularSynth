@@ -13,6 +13,8 @@ static const String ConnectionType = "connection";
 static const String SynthType = "synth";
 
 static const String NodeID = "nodeID";
+static const String X = "x";
+static const String Y = "y";
 static const String IsInitNode = "isInit";
 static const String InitPort = "initPort";
 

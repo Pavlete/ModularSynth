@@ -13,7 +13,6 @@ struct OutVCA_Model
         void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
     };
 
-    OutVCA_Model(int x, int y);
     OutVCA_Model(const ValueTree&);
 
     void setVolume(int val);

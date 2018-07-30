@@ -6,14 +6,16 @@ class AudioBufferWrapper
 {
 public:
     AudioBufferWrapper();
-
-    AudioBufferWrapper(AudioBuffer<float> *out, int samples, int start);
+    AudioBufferWrapper(AudioBuffer<float> &out, int samples, int start);
 
     ~AudioBufferWrapper();
 
-    int numberOfSamples() const {return m_numSamples;}
-    int startSamples() const {return m_startSample;}
-    AudioBuffer<float>* buffer() {return m_outputBuffer;}
+    void clear();
+
+    void addSample(int channel, int sampleNumber, float value);
+
+    float sample(int channel, int sampleNumber) const;
+    int sampleCount() const;
 
 private:
     AudioBuffer<float> *m_outputBuffer;

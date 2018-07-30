@@ -1,5 +1,7 @@
 #include "outvca.h"
 
+#include "nodefactory.h"
+
 namespace
 {
 
@@ -23,16 +25,12 @@ void OutVCA_Model::Listener::valueTreePropertyChanged(ValueTree &tree, const Ide
     }
 }
 
-OutVCA_Model::OutVCA_Model(int x, int y)
-    : Node(x, y, ModuleName)
+OutVCA_Model::OutVCA_Model(const ValueTree &tree)
+    : Node(tree)
 {
     m_tree.setProperty(IDs::IsInitNode, true, nullptr);
     m_tree.setProperty(IDs::InitPort, 0, nullptr);
 }
-
-OutVCA_Model::OutVCA_Model(const ValueTree &tree)
-    : Node(tree)
-{}
 
 
 void OutVCA_Model::setVolume(int val)
@@ -94,12 +92,12 @@ void OutVCA::process()
         return;
     }
 
-    for(int i = 0; i < inBuffer->numberOfSamples(); i++)
+    for(int i = 0; i < inBuffer->sampleCount(); i++)
     {
-        auto nextLeftSample = inBuffer->buffer()->getSample(0,i + inBuffer->startSamples()) * m_amplitude;
-        auto nextRightSample = inBuffer->buffer()->getSample(1,i + inBuffer->startSamples()) * m_amplitude;
-        outBuffer->buffer()->addSample(0, i + outBuffer->startSamples(), nextLeftSample);
-        outBuffer->buffer()->addSample(1, i + outBuffer->startSamples(), nextRightSample);
+        auto nextLeftSample = inBuffer->sample(0,i) * m_amplitude;
+        auto nextRightSample = inBuffer->sample(1,i) * m_amplitude;
+        outBuffer->addSample(0, i, nextLeftSample);
+        outBuffer->addSample(1, i, nextRightSample);
     }
 }
 
