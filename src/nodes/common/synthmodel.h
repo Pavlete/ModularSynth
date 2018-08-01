@@ -54,4 +54,7 @@ private:
 
     bool treeHasIndex(int index);
     static ValueTree loadFromFile(File fileName);
+
+    friend struct Node;
+    friend struct Connection;
 };

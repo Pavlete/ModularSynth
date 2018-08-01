@@ -61,10 +61,10 @@ public:
     bool addConnection(const ConnectionPoint& outputPoint,
                        const ConnectionPoint& inputPoint)
     {
-        if(!connectionPointValid(outputPoint, PointDirection::Output) ||
-           hasConnection(outputPoint, PointDirection::Output) ||
-           !connectionPointValid(inputPoint, PointDirection::Input) ||
-           hasConnection(inputPoint, PointDirection::Input))
+        if(!connectionExists(outputPoint, PointDirection::Output) ||
+           isConnected(outputPoint, PointDirection::Output) ||
+           !connectionExists(inputPoint, PointDirection::Input) ||
+           isConnected(inputPoint, PointDirection::Input))
         {
             return false;
         }
@@ -96,10 +96,10 @@ public:
     bool removeConnection(const ConnectionPoint& outputPoint,
                           const ConnectionPoint& inputPoint)
     {
-        if(!connectionPointValid(outputPoint, PointDirection::Output) ||
-           !hasConnection(outputPoint, PointDirection::Output) ||
-           !connectionPointValid(inputPoint, PointDirection::Input) ||
-           !hasConnection(inputPoint, PointDirection::Input))
+        if(!connectionExists(outputPoint, PointDirection::Output) ||
+           !isConnected(outputPoint, PointDirection::Output) ||
+           !connectionExists(inputPoint, PointDirection::Input) ||
+           !isConnected(inputPoint, PointDirection::Input))
         {
             return false;
         }
@@ -124,7 +124,7 @@ public:
 
     bool setInitNode(const ConnectionPoint& outputPoint)
     {
-        if(!connectionPointValid(outputPoint, PointDirection::Output))
+        if(!connectionExists(outputPoint, PointDirection::Output))
         {
             return false;
         }
@@ -139,11 +139,6 @@ public:
 
     void proccessData(DataType& outData)
     {
-        if(m_status == Status::CHANGED)
-        {
-            updateSynchronus();
-        }
-
         m_outEdge->setMyOwnData(&outData);
         for(auto& element : m_currentPath)
         {
@@ -159,13 +154,9 @@ private:
             return false;
         }
 
-        m_status = Status::CHANGING;
-
-        m_tempPath.clear();
+        m_currentPath.clear();
         std::set<int> visitingSet;
-        auto result = visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_tempPath);
-
-        m_status = Status::CHANGED;
+        auto result = visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_currentPath);
 
         return result;
     }
@@ -204,7 +195,7 @@ private:
         return true;
     }
 
-    bool connectionPointValid(const ConnectionPoint& point,
+    bool connectionExists(const ConnectionPoint& point,
                               PointDirection direction) const
     {
         auto nodeElement = m_nodes.find(point.nodeId);
@@ -220,8 +211,8 @@ private:
         return point.portNumber < edges.size();
     }
 
-    bool hasConnection(const ConnectionPoint& point,
-                       PointDirection direction) const
+    bool isConnected(const ConnectionPoint& point,
+                     PointDirection direction) const
     {
         auto node = m_nodes.find(point.nodeId)->second.get();
         auto edges = direction == PointDirection::Input?
@@ -230,23 +221,14 @@ private:
         return !edges[point.portNumber].expired();
     }
 
-    void updateSynchronus()
-    {
-        m_currentPath = std::move(m_tempPath);        
-        m_status = Status::NO_CHANGE;
-    }
-
     std::unordered_map<int, std::unique_ptr<Node>> m_nodes;
     std::vector<std::shared_ptr<Edge>> m_edges;
 
-    std::vector<int> m_currentPath;
-    std::vector<int> m_tempPath;
+    std::shared_ptr<std::vector<std::function<void>()>> m_thisismadness;
 
-    std::atomic<Status> m_status;
+    std::vector<int> m_currentPath;
 
     std::shared_ptr<Edge> m_outEdge = std::make_shared<Edge>();
-
-    int m_currentId = 0;
 };
 
 template <class T>

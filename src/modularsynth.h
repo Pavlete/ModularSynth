@@ -4,7 +4,6 @@
 
 #include "nodes/common/synthmodel.h"
 
-
 class AudioBufferWrapper;
 
 class ModularSynth : public AudioSource
