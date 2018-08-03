@@ -23,7 +23,7 @@ struct Mixer_Model
 	void setInput2amplitude(int value);
 	int getInput2amplitude() const;
 
-	std::function<std::unique_ptr<AudioGraphNode> ()> getAudioFactory() override;
+    std::function<std::unique_ptr<AudioNode> ()> getAudioFactory() override;
 	std::function<std::unique_ptr<JuceAudioNode> ()> getUIFactory() override;
 
 };
@@ -31,7 +31,7 @@ struct Mixer_Model
 //------------------//
 
 class Mixer
-	: public AudioGraphNode
+    : public AudioNode
 	, public Mixer_Model::Listener
 {
 public:

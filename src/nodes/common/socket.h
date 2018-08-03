@@ -1,7 +1,6 @@
 #pragma once
 
 #include "juceconnection.h"
-#include "ongoingconnection.h"
 
 class Socket: public Component
             , public ComponentListener

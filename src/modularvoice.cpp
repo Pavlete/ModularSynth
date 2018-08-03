@@ -24,6 +24,10 @@ void ModularVoice::stopNote(float , bool )
     m_graph.setNodesOff();
 }
 
+void ModularVoice::pitchWheelMoved(int) {}
+
+void ModularVoice::controllerMoved(int, int) {}
+
 void ModularVoice::renderNextBlock(AudioBuffer<float> &outputBuffer,
                                    int startSample,
                                    int numSamples)
@@ -43,18 +47,22 @@ void ModularVoice::nodeAdded(const SharedNode &node)
     m_graph.addNode(node->moduleId, node->getAudioFactory()());
     if (node->isInitModule())
     {
-        m_graph.setInitNode({node->moduleId, node->initPort()});
+        m_graph.setInitNode({node->moduleId, static_cast<unsigned>(node->initPort())});
     }
 }
 
 void ModularVoice::connectionAdded(const Connection &conn)
 {
-    m_graph.addConnection({conn.connectionOutID(), conn.connectionOutPort()},
-                          {conn.connectionInID(), conn.connectionInPort()});
+    m_graph.addConnection({conn.connectionOutID(),
+                           static_cast<unsigned>(conn.connectionOutPort())},
+                          {conn.connectionInID(),
+                           static_cast<unsigned>(conn.connectionInPort())});
 }
 
 void ModularVoice::connectionRemoved(const Connection &conn)
 {
-    m_graph.removeConnection({conn.connectionOutID(), conn.connectionOutPort()},
-                             {conn.connectionInID(), conn.connectionInPort()});
+    m_graph.removeConnection({conn.connectionOutID(),
+                              static_cast<unsigned>(conn.connectionOutPort())},
+                             {conn.connectionInID(),
+                              static_cast<unsigned>(conn.connectionInPort())});
 }

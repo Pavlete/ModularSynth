@@ -1,5 +1,6 @@
 #include "juceaudionode.h"
 
+
 JuceAudioNode::JuceAudioNode(const SharedNode& model,
                              int inputNumber,
                              int outputNumber)
@@ -7,14 +8,14 @@ JuceAudioNode::JuceAudioNode(const SharedNode& model,
 {
     for(int i = 0; i< inputNumber; i++)
     {
-        m_inConnectors.emplace_back(std::make_unique<Socket>(model, i, Socket::Direction::Input, m_ongoing));
+        m_inConnectors.push_back(std::make_unique<Socket>(model, i, Socket::Direction::Input, m_ongoing));
         addComponentListener(m_inConnectors.back().get());
         addAndMakeVisible(m_inConnectors.back().get());
     }
 
     for(int i = 0; i< outputNumber; i++)
     {
-        m_outConnectors.emplace_back(std::make_unique<Socket>(model, i, Socket::Direction::Output, m_ongoing));
+        m_outConnectors.push_back(std::make_unique<Socket>(model, i, Socket::Direction::Output, m_ongoing));
         addComponentListener(m_outConnectors.back().get());
         addAndMakeVisible(m_outConnectors.back().get());
     }
@@ -81,7 +82,7 @@ void JuceAudioNode::setConnection(std::shared_ptr<JuceConnection> con,
                                   Socket::Direction dir)
 {
     auto& socket = dir == Socket::Direction::Input? m_inConnectors[con->getInputPort()]:
-                                                   m_outConnectors[con->getOutputPort()];
+                                                    m_outConnectors[con->getOutputPort()];
     socket->setConnection(con);
 }
 

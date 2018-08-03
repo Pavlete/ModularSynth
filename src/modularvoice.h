@@ -1,9 +1,8 @@
 #pragma once
 
-#include "nodes/common/juceaudionode.h"
+#include "graph/processgraph.h"
+#include "nodes/common/synthmodel.h"
 
-template <class T>
-class AudioGraphObservable;
 
 struct ModularSound : public SynthesiserSound
 {
@@ -28,9 +27,9 @@ public:
 
     void stopNote(float velocity, bool allowTailOff) override;
 
-    void pitchWheelMoved(int) override {}
+    void pitchWheelMoved(int) override;
 
-    void controllerMoved(int, int) override {}
+    void controllerMoved(int, int) override;
 
     void renderNextBlock(AudioBuffer<float> &outputBuffer,
                          int startSample,
@@ -39,7 +38,7 @@ public:
     bool isVoiceActive() const override;
 
 private:
-    processGraph::AudioProcessGraph<AudioBufferWrapper> m_graph;
+    ProcessGraph m_graph;
 
     void nodeAdded(const SharedNode& node) override;
     void connectionAdded(const Connection&) override;

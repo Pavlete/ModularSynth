@@ -8,7 +8,7 @@ class SynthCanvas : public Component
                   , public SynthModel::Listener
 {
 public:
-    SynthCanvas(const SynthModel& synth);
+    SynthCanvas(SynthModel& synth);
 
     void paint(Graphics &g) override;
     void mouseDown(const MouseEvent &event) override;
@@ -19,7 +19,6 @@ public:
     void connectionRemoved(const Connection& connection) override;
 
 private:
-    SynthModel m_synth;
     ModuleMenu m_menu;
 
     std::vector<std::unique_ptr<JuceAudioNode>> m_nodes;

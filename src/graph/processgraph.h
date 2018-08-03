@@ -7,15 +7,19 @@
 #include <unordered_map>
 #include <vector>
 
-namespace processGraph
-{
+#include <iostream>
+
+#include "audiobufferwrapper.h"
+
+
+class AudioNode;
 
 static const int INVALID_NODE_ID = -1;
 
 struct ConnectionPoint
 {
     int nodeId;
-    int portNumber;
+    unsigned portNumber;
 
     bool operator==(const ConnectionPoint& other)
     {
@@ -24,227 +28,71 @@ struct ConnectionPoint
     }
 };
 
-template <class DataType>
+enum class PointDirection
+{
+    Input,
+    Output
+};
+
 class ProcessGraph
 {
-    enum class Status
-    {
-        NO_CHANGE,
-        CHANGING,
-        CHANGED
-    };
-
-    enum class PointDirection
-    {
-        Input,
-        Output
-    };
-
     class Edge;
-
 public:
-    class Node;
 
-    bool addNode(int nodeID, std::unique_ptr<Node> node){
-        auto result = m_nodes.emplace(nodeID, std::move(node));
-        return result.second;
-    }
+    void setNodesOn(float frequency);
 
-    bool removeNode(int nodeId)
-    {
-        //TODO: Check if current path is affected before deleting and
-        //      take care of non deleting anything asynchronously while
-        //      the process thread could be using the node
-        return m_nodes.erase( nodeId ) != 0;
-    }
+    void setNodesOff();
+
+    bool isActive() const;
+
+    bool addNode(int nodeID, std::unique_ptr<AudioNode> node);
+
+    bool removeNode(int nodeId);
 
     bool addConnection(const ConnectionPoint& outputPoint,
-                       const ConnectionPoint& inputPoint)
-    {
-        if(!connectionExists(outputPoint, PointDirection::Output) ||
-           isConnected(outputPoint, PointDirection::Output) ||
-           !connectionExists(inputPoint, PointDirection::Input) ||
-           isConnected(inputPoint, PointDirection::Input))
-        {
-            return false;
-        }
-
-        auto edge = std::make_shared<Edge>(outputPoint,
-                                           inputPoint);
-
-        Node* outNode = m_nodes.find(outputPoint.nodeId)->second.get();
-        outNode->m_outEdges[outputPoint.portNumber] = edge;
-
-        Node* inNode = m_nodes.find(inputPoint.nodeId)->second.get();
-        inNode->m_inEdges[inputPoint.portNumber] = edge;
-
-        m_edges.push_back(edge);
-
-        return updatePath();
-    }
-
-    Node* getNode(int nodeId) const
-    {
-        auto nodeElement = m_nodes.find(nodeId);
-        if(nodeElement == m_nodes.end())
-        {
-            return nullptr;
-        }
-        return nodeElement->second.get();
-    }
+                       const ConnectionPoint& inputPoint);
 
     bool removeConnection(const ConnectionPoint& outputPoint,
-                          const ConnectionPoint& inputPoint)
-    {
-        if(!connectionExists(outputPoint, PointDirection::Output) ||
-           !isConnected(outputPoint, PointDirection::Output) ||
-           !connectionExists(inputPoint, PointDirection::Input) ||
-           !isConnected(inputPoint, PointDirection::Input))
-        {
-            return false;
-        }
+                          const ConnectionPoint& inputPoint);
 
-        auto edge = std::find_if(m_edges.begin(), m_edges.end(), [&](const std::shared_ptr<Edge>& n)
-        {
-            return n->m_outPoint.nodeId == outputPoint.nodeId &&
-                   n->m_outPoint.portNumber == outputPoint.portNumber &&
-                   n->m_inPoint.nodeId == inputPoint.nodeId &&
-                   n->m_inPoint.portNumber == inputPoint.portNumber;
-        });
+    bool setInitNode(const ConnectionPoint& outputPoint);
 
-        if(edge == m_edges.end())
-        {
-            return false;
-        }
-
-        m_edges.erase(edge);        
-
-        return updatePath();
-    }
-
-    bool setInitNode(const ConnectionPoint& outputPoint)
-    {
-        if(!connectionExists(outputPoint, PointDirection::Output))
-        {
-            return false;
-        }
-
-        m_outEdge->m_inPoint = outputPoint;
-
-        Node* outNode = m_nodes.find(outputPoint.nodeId)->second.get();
-        outNode->m_outEdges[outputPoint.portNumber] = m_outEdge;
-
-        return updatePath();
-    }
-
-    void proccessData(DataType& outData)
-    {
-        m_outEdge->setMyOwnData(&outData);
-        for(auto& element : m_currentPath)
-        {
-            m_nodes[element]->process();
-        }
-    }
+    void proccessData(AudioBufferWrapper& outData);
 
 private:
-    bool updatePath()
-    {
-        if( m_outEdge->m_inPoint.nodeId == INVALID_NODE_ID)
-        {
-            return false;
-        }
-
-        m_currentPath.clear();
-        std::set<int> visitingSet;
-        auto result = visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_currentPath);
-
-        return result;
-    }
+    bool updatePath();
 
     bool visitNode(int nodeId,
                    std::set<int>& visiting,
-                   std::vector<int>& visited)
-    {
-        if(visiting.find(nodeId) != visiting.end())
-        {
-            visited.clear();
-            return false;
-        }
+                   std::vector<int>& visited);
 
-        if(std::find(visited.begin(), visited.end(), nodeId) != std::end(visited))
-        {
-            return true;
-        }
+    auto startEditing();
 
-        visiting.insert(nodeId);
-        auto node = m_nodes.find(nodeId)->second.get();
-        for(auto inputEdge : node->m_inEdges)
-        {
-            if(auto ptr = inputEdge.lock())
-            {
-                if(!visitNode(ptr->m_outPoint.nodeId, visiting, visited))
-                {
-                    return false;
-                }
-            }
-        }
-
-        visiting.erase(nodeId);
-        visited.push_back(nodeId);
-
-        return true;
-    }
-
-    bool connectionExists(const ConnectionPoint& point,
-                              PointDirection direction) const
-    {
-        auto nodeElement = m_nodes.find(point.nodeId);
-        if(nodeElement == m_nodes.end() )
-        {
-            return false;
-        }
-
-        auto node = nodeElement->second.get();
-        auto edges = direction == PointDirection::Input?
-                    node->m_inEdges : node->m_outEdges;
-
-        return point.portNumber < edges.size();
-    }
-
-    bool isConnected(const ConnectionPoint& point,
-                     PointDirection direction) const
-    {
-        auto node = m_nodes.find(point.nodeId)->second.get();
-        auto edges = direction == PointDirection::Input?
-                    node->m_inEdges : node->m_outEdges;
-
-        return !edges[point.portNumber].expired();
-    }
-
-    std::unordered_map<int, std::unique_ptr<Node>> m_nodes;
+    std::unordered_map<int, std::unique_ptr<AudioNode>> m_nodes;
     std::vector<std::shared_ptr<Edge>> m_edges;
-
-    std::shared_ptr<std::vector<std::function<void>()>> m_thisismadness;
+    std::shared_ptr<Edge> m_outEdge = std::make_shared<Edge>();
 
     std::vector<int> m_currentPath;
 
-    std::shared_ptr<Edge> m_outEdge = std::make_shared<Edge>();
+    std::atomic<bool> m_processing = {false};
+    std::atomic<bool> m_editing = {false};
+
+    friend class AudioNode;
 };
 
-template <class T>
-class ProcessGraph<T>::Edge
+class ProcessGraph::Edge
 {
-    T* getData() { return m_outsideData?  m_outsideData : &m_sharedData; }
-    void setMyOwnData(T* data) { m_outsideData = data; }
+    AudioBufferWrapper* getData() { return m_outsideData?  m_outsideData : &m_sharedData; }
+    void setMyOwnData(AudioBufferWrapper* data) { m_outsideData = data; }
 
-    T m_sharedData;
-    T* m_outsideData = nullptr;
+    AudioBufferWrapper m_sharedData;
+    AudioBufferWrapper* m_outsideData = nullptr;
 
     ConnectionPoint m_outPoint;
     ConnectionPoint m_inPoint;
 
-    friend class ProcessGraph<T>;
-    friend class ProcessGraph<T>::Node;
+    friend class ProcessGraph;
+    friend class AudioNode;
 
 public:
     Edge(ConnectionPoint outPoint = {INVALID_NODE_ID, 0},
@@ -253,58 +101,3 @@ public:
         , m_inPoint (inPoint)
     {}
 };
-
-template <class T>
-class ProcessGraph<T>::Node
-{
-public:
-    Node(uint32_t numIn, uint32_t numOut)
-        : m_inEdges(numIn)
-        , m_outEdges(numOut)
-    {}
-
-    virtual ~Node() = default;
-
-    virtual void process() = 0;
-
-protected:
-    T* getInputData(int index)
-    {
-        if(m_inEdges.size() < index)
-        {
-            return nullptr;
-        }
-
-        auto ptr = m_inEdges[index].lock();
-        if(!ptr)
-        {
-            return nullptr;
-        }
-
-        return ptr->getData();
-    }
-
-    T* getOutputData(int index)
-    {
-        if(m_outEdges.size() < index)
-        {
-            return nullptr;
-        }
-
-        auto ptr = m_outEdges[index].lock();
-        if(!ptr)
-        {
-            return nullptr;
-        }
-
-        return ptr->getData();
-    }
-
-private:
-    std::vector<std::weak_ptr<Edge>> m_inEdges;
-    std::vector<std::weak_ptr<Edge>> m_outEdges;
-
-    friend class ProcessGraph<T>;
-};
-
-} //namespace processGraph

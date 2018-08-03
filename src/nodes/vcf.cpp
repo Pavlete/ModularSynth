@@ -7,7 +7,7 @@ const int SignalInput = 0;
 const int SignalOutput= 0;
 }
 
-VCF::VCF() : AudioGraphNode (1,1)
+VCF::VCF() : AudioNode (1,1)
 {}
 
 void VCF::setActive(float freq)

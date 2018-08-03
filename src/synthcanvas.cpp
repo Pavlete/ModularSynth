@@ -3,11 +3,10 @@
 #include "nodes/nodefactory.h"
 #include "synthcanvas.h"
 
-SynthCanvas::SynthCanvas(const SynthModel& synth)
-    : m_synth(synth)
-    , m_menu (synth)
+SynthCanvas::SynthCanvas(SynthModel& synth)
+    : m_menu (synth)
 {
-    m_synth.addListener(this);
+    synth.addListener(this);
     addChildComponent(m_menu);
 
     auto a = NodeCatalog::getCategories();
@@ -24,7 +23,7 @@ SynthCanvas::SynthCanvas(const SynthModel& synth)
 
 void SynthCanvas::paint(Graphics &g)
 {
-    g.fillAll(Colours::beige);
+    g.fillAll(Colours::aliceblue);
 }
 
 void SynthCanvas::mouseDown(const MouseEvent &event)
@@ -51,8 +50,9 @@ void SynthCanvas::nodeAdded(const SharedNode& mod)
 
 void SynthCanvas::connectionAdded(const Connection& con)
 {    
-    m_connections.push_back(std::make_shared<JuceConnection>(con));
-    auto newConnection = m_connections.back();
+    auto newConnection = std::make_shared<JuceConnection>(con);
+    m_connections.push_back(newConnection);
+
     addAndMakeVisible(newConnection.get());
     newConnection->setAlwaysOnTop(true);
 

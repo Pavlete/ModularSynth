@@ -60,7 +60,7 @@ int Mixer_Model::getInput2amplitude() const
 	return m_tree.getProperty(Input2amplitude, DefaultInput2amplitude);
 }
 
-std::function<std::unique_ptr<AudioGraphNode> ()> Mixer_Model::getAudioFactory()
+std::function<std::unique_ptr<AudioNode> ()> Mixer_Model::getAudioFactory()
 {
 	return [&](){return std::make_unique<Mixer>(this->shared_from_this());};
 }
@@ -73,7 +73,7 @@ std::function<std::unique_ptr<JuceAudioNode> ()> Mixer_Model::getUIFactory()
 //------------------//
 
 Mixer::Mixer(const std::shared_ptr<Mixer_Model>& model)
-	: AudioGraphNode (2, 1)
+    : AudioNode (2, 1)
 	, m_model (model)
 	, m_input1Amplitude (m_model->getInput1amplitude())
 	, m_input2Amplitude (m_model->getInput2amplitude())

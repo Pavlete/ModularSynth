@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common/juceaudionode.h"
-
 #include "../soundProc/signal.h"
 
 struct VCO_Model
@@ -25,14 +24,14 @@ struct VCO_Model
     void setWaveindex(int value);
     int getWaveindex() const;
 
-    std::function<std::unique_ptr<AudioGraphNode> ()> getAudioFactory() override;
+    std::function<std::unique_ptr<AudioNode> ()> getAudioFactory() override;
     std::function<std::unique_ptr<JuceAudioNode> ()> getUIFactory() override;
 };
 
 //------------------//
 
 class VCO
-        : public AudioGraphNode
+        : public AudioNode
         , public VCO_Model::Listener
 {
 public:

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "audiobufferwrapper.h"
 #include "socket.h"
-
 
 class JuceAudioNode: public Component
 {
@@ -34,6 +32,5 @@ private:
 
     ComponentDragger m_dragger;
     OngoingConnection m_ongoing;
-
 };
 

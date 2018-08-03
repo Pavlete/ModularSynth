@@ -1,10 +1,11 @@
 #pragma once
 
 #include "common/juceaudionode.h"
+#include "../graph/audionode.h"
 
 #include "../soundProc/onepolefilter.h"
 
-class VCF: public AudioGraphNode
+class VCF: public AudioNode
 {
 public:
     VCF();

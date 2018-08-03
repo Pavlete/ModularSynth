@@ -62,7 +62,7 @@ int VCO_Model::getWaveindex() const
     return m_tree.getProperty(Waveindex, DefaultWaveindex);
 }
 
-std::function<std::unique_ptr<AudioGraphNode> ()> VCO_Model::getAudioFactory()
+std::function<std::unique_ptr<AudioNode> ()> VCO_Model::getAudioFactory()
 {
     return [this](){return std::make_unique<VCO>(shared_from_this());};
 }
@@ -76,7 +76,7 @@ std::function<std::unique_ptr<JuceAudioNode> ()> VCO_Model::getUIFactory()
 //------------------//
 
 VCO::VCO(const std::shared_ptr<VCO_Model>& model)
-    : AudioGraphNode (2, 1)
+    : AudioNode (2, 1)
     , m_model (model)
     , m_offset (model->getOffset())
     , m_waveIndex (model->getWaveindex())

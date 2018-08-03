@@ -2,10 +2,8 @@
 
 #include <JuceHeader.h>
 
-#include "audiobufferwrapper.h"
-#include "../../graph/audioprocessgraph.h"
+#include "../../graph/audionode.h"
 
-using AudioGraphNode = processGraph::AudioProcessGraph<AudioBufferWrapper>::AudioNode;
 class JuceAudioNode;
 class SynthModel;
 
@@ -35,7 +33,7 @@ struct Node
 
     SynthModel getParentSynth();
 
-    virtual  std::function<std::unique_ptr<AudioGraphNode>()> getAudioFactory() = 0;
+    virtual std::function<std::unique_ptr<AudioNode>()> getAudioFactory() = 0;
     virtual std::function<std::unique_ptr<JuceAudioNode>()> getUIFactory() = 0;
 
     ValueTree m_tree;

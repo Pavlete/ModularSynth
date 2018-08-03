@@ -1,8 +1,5 @@
 #include "juceconnection.h"
 
-#include "audiobufferwrapper.h"
-#include "../../graph/processgraph.h"
-
 JuceConnection::JuceConnection(const Connection& model)
     : m_connection(model)
 {

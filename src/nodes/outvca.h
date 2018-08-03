@@ -18,12 +18,12 @@ struct OutVCA_Model
     void setVolume(int val);
     int getVolume() const;
 
-    std::function<std::unique_ptr<AudioGraphNode> ()> getAudioFactory() override;
+    std::function<std::unique_ptr<AudioNode> ()> getAudioFactory() override;
     std::function<std::unique_ptr<JuceAudioNode> ()> getUIFactory() override;
 };
 
 class OutVCA
-        : public AudioGraphNode
+        : public AudioNode
         , public OutVCA_Model::Listener
 {
 public:

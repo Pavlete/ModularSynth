@@ -2,6 +2,8 @@
 
 #include "nodefactory.h"
 
+#include "../graph/audionode.h"
+
 namespace
 {
 
@@ -43,7 +45,7 @@ int OutVCA_Model::getVolume() const
     return m_tree.getProperty(Volume, DefaultVolume);
 }
 
-std::function<std::unique_ptr<AudioGraphNode> ()> OutVCA_Model::getAudioFactory()
+std::function<std::unique_ptr<AudioNode> ()> OutVCA_Model::getAudioFactory()
 {
     return [&](){return std::make_unique<OutVCA>(this->shared_from_this());};
 }
@@ -57,7 +59,7 @@ std::function<std::unique_ptr<JuceAudioNode> ()> OutVCA_Model::getUIFactory()
 
 
 OutVCA::OutVCA(const std::shared_ptr<OutVCA_Model>& model)
-    : AudioGraphNode (1,1)
+    : AudioNode (1,1)
     , m_model(model)
     , m_amplitudeSetting (model->getVolume())
     , m_settingsChanged(true)

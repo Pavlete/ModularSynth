@@ -34,10 +34,10 @@ void Socket::mouseDrag(const MouseEvent &event)
     auto connector = getSocketUnderCursor(event.getPosition());
 
     if(connector &&
-       connector->m_nodeId != m_nodeId)// &&
-       //connector->getDirection() != getDirection() &&
-       //connector->m_currentConnection.expired() &&
-       //!m_opositeSocket)
+       connector->m_nodeId != m_nodeId &&
+       connector->getDirection() != getDirection() &&
+       connector->m_currentConnection.expired() &&
+       !m_opositeSocket)
     {
         m_opositeSocket = connector;
         m_opositeSocket->startMouseEnterAnimation();
