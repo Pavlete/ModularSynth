@@ -18,9 +18,11 @@ SOURCES += \
     src/soundProc/onepolefilter.cpp \
     src/soundProc/signal.cpp \
     src/nodes/vco.cpp \
+    src/nodes/vco_base.cpp \
     src/synthcanvas.cpp \
     src/modulemenu.cpp \
     src/nodes/outvca.cpp \
+    src/nodes/outvca_base.cpp \
     src/graph/audiobufferwrapper.cpp \
     src/nodes/vcf.cpp \
     src/nodes/common/juceaudionode.cpp \
@@ -31,6 +33,7 @@ SOURCES += \
     src/nodes/common/node.cpp \
     src/nodes/common/connection.cpp \
     src/nodes/mixer.cpp \
+    src/nodes/mixer_base.cpp \
     src/graph/audionode.cpp \
     src/graph/processgraph.cpp
 

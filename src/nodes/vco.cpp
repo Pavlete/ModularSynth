@@ -8,72 +8,8 @@ namespace
 
 REGISTER_FACTORY(Oscillator, VCO)
 
-const static String ModuleName = "VCO";
-
-const static int AmplitudeMod = 0;
-const static int FreqMod = 1;
-
-const static int SignalOutput = 0;
-
-const static String Offset = "offset";
-const static float DefaultOffset = 0;
-
-const static String Waveindex = "waveIndex";
-const static int DefaultWaveindex = 0;
-
 }
 
-//------------------//
-
-
-void VCO_Model::Listener::valueTreePropertyChanged(ValueTree &tree, const Identifier &id)
-{
-    if(id.toString() == Offset)
-    {
-        offsetChanged(tree.getProperty(id));
-    }
-    else if(id.toString() == Waveindex)
-    {
-        waveIndexChanged(tree.getProperty(id));
-    }
-}
-
-VCO_Model::VCO_Model(const ValueTree &tree)
-    : Node(tree)
-{ }
-
-void VCO_Model::setOffset(float val)
-{
-    m_tree.setProperty(Offset, val, nullptr);
-}
-
-float VCO_Model::getOffset() const
-{
-    return m_tree.getProperty(Offset, DefaultOffset);
-}
-
-void VCO_Model::setWaveindex(int val)
-{
-    m_tree.setProperty(Waveindex, val, nullptr);
-}
-
-int VCO_Model::getWaveindex() const
-{
-    return m_tree.getProperty(Waveindex, DefaultWaveindex);
-}
-
-std::function<std::unique_ptr<AudioNode> ()> VCO_Model::getAudioFactory()
-{
-    return [this](){return std::make_unique<VCO>(shared_from_this());};
-}
-
-std::function<std::unique_ptr<JuceAudioNode> ()> VCO_Model::getUIFactory()
-{
-    return [this](){return std::make_unique<VCO_GUI>(shared_from_this());};
-}
-
-
-//------------------//
 
 VCO::VCO(const std::shared_ptr<VCO_Model>& model)
     : AudioNode (2, 1)
@@ -105,26 +41,11 @@ void VCO::updateSettings()
     }
 }
 
-void VCO::offsetChanged(float offset)
-{
-    m_offset = offset;
-    m_settingsChanged = true;
-}
-
-void VCO::waveIndexChanged(int index)
-{
-    m_waveIndex = index;
-    m_settingsChanged = true;
-}
-
 void VCO::process()
 {
     updateSettings();
 
-    //auto AmplitudeModBuffer = getInputData(AmplitudeMod);
-    //auto FreqModBuffer = getInputData(FreqMod);
-
-    auto SignalOutputBuffer = getOutputData(SignalOutput);
+    auto SignalOutputBuffer = getOutputData(OutputBufferIndex);
 
     if(!SignalOutputBuffer)
     {
@@ -150,20 +71,24 @@ VCO_GUI::VCO_GUI(const std::shared_ptr<VCO_Model>& model)
     setSize(300, 125);
 
     addAndMakeVisible(m_offsetSlider);
+    m_offsetSlider.setSliderStyle(Slider::RotaryVerticalDrag);
+    m_offsetSlider.setTextBoxStyle (Slider::TextBoxBelow, true, 50, 10);
     m_offsetSlider.addListener(this);
     m_offsetSlider.setRange(-2, 2, 0.5);
     m_offsetSlider.setValue(m_model->getOffset());
 
     addAndMakeVisible(m_waveformSlider);
+    m_waveformSlider.setSliderStyle(Slider::RotaryVerticalDrag);
+    m_waveformSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
     m_waveformSlider.addListener(this);
     m_waveformSlider.setRange(0, 3, 1);
     m_waveformSlider.setValue(m_model->getWaveindex());
 }
 
 void VCO_GUI::setContent(Rectangle<int> &r)
-{
-    m_offsetSlider.setBounds(r.removeFromTop(getHeight()/2));
-    m_waveformSlider.setBounds(r);
+{   
+    m_offsetSlider.setBounds(r.removeFromLeft(r.getWidth()/2).reduced(25));
+    m_waveformSlider.setBounds(r.reduced(25));
 }
 
 void VCO_GUI::sliderValueChanged(Slider *slider)

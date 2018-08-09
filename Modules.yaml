@@ -3,10 +3,10 @@ modules:
   - name: OutVCA
     category: Output
     inputs:
-    - SignalInput
+    - Input
 
     outputs:
-    - SignalOutput
+    - Output
 
     settings:
     - name: amplitude
@@ -21,7 +21,7 @@ modules:
     - FreqMod
 
     outputs:
-    - SignalOutput
+    - Output
 
     settings:
     - name: offset
@@ -39,7 +39,7 @@ modules:
     - Input2
 
     outputs:
-    - SignalOutput
+    - Output
 
     settings:
     - name: input1Amplitude
