@@ -2,10 +2,10 @@
 
 #include <JuceHeader.h>
 
-#include "nodes/common/synthmodel.h"
-#include "modularsynth.h"
-#include "modularvoice.h"
-#include "synthcanvas.h"
+#include "data_models/synthmodel.h"
+#include "sound_proccesing/modularsynth.h"
+#include "sound_proccesing/modularvoice.h"
+#include "UI/synthcanvas.h"
 
 
 //==============================================================================

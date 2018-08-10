@@ -1,9 +1,5 @@
 #include "maincomponent.h"
 
-#include "nodes/vco.h"
-
-
-
 MainContentComponent::MainContentComponent()
     : m_modularSynth  (m_keyboardState, m_synth)
     , m_keyboardComponent (m_keyboardState, MidiKeyboardComponent::horizontalKeyboard)

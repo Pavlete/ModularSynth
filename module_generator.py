@@ -1,3 +1,4 @@
+import os.path
 import yaml
 
 class Settings:
@@ -175,7 +176,7 @@ class Module:
 
 	def generateHeader(self, stream):
 		stream.write('#pragma once\n\n')
-		stream.write('#include "common/juceaudionode.h"\n\n')
+		stream.write('#include "../UI/nodes_common/juceaudionode.h"\n#include "../proccess_graph/audionode.h"\n\n')
 		self.generateModelHeader(stream)
 		stream.write("//------------------//\n\n")
 		self.generateAudioModuleHeader(stream)
@@ -188,6 +189,7 @@ class Module:
 
 	def generateBaseSource(self, stream):
 		stream.write('#include "{0}.h"\n\n'.format(self.name.lower()))
+		stream.write('#include "../data_models/nodefactory.h"\n\n')
 
 		self.generateBaseNamespace(stream)
 		stream.write("//------------------//\n\n")
@@ -234,7 +236,9 @@ with open("Modules.yaml", 'r') as stream:
 
 for moduledict in modules['modules']:
 	module = Module(moduledict)
-	module.generateCode("./")
+	path = './src/synth_nodes/' + module.name.lower() + '.h'
+	if not os.path.isfile(path):
+		module.generateCode("./src/synth_nodes/")
 
 
 
