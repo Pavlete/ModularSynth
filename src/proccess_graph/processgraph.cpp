@@ -13,9 +13,9 @@ public:
         : m_ab(ab)
     { m_ab = true; }
 
-    AtomicBoolGuard(const AtomicBoolGuard& other)
-        : m_ab(other.m_ab)
-    { std::cout << "if am called we are fucked\n"; }
+    AtomicBoolGuard(const AtomicBoolGuard& other) = delete;
+    AtomicBoolGuard& operator =(const AtomicBoolGuard& other) = delete;
+
 
     ~AtomicBoolGuard()
     { m_ab = false; }
@@ -25,22 +25,11 @@ private:
 };
 }
 
-auto ProcessGraph::startEditing()
-{
-    auto guard = AtomicBoolGuard(m_editing);
-
-    while (m_processing)
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-    }
-    return guard;
-}
-
-void ProcessGraph::setNodesOn(float frequency)
+void ProcessGraph::setNodesOn(float frequency, float velocity)
 {
     std::for_each(m_currentPath.begin(), m_currentPath.end(), [&](int nodeID)
     {
-        m_nodes[nodeID]->setActive(frequency);
+        m_nodes[nodeID]->setActive(frequency, velocity);
     });
 }
 
@@ -90,7 +79,12 @@ bool ProcessGraph::addConnection(const ConnectionPoint &outputPoint, const Conne
     AudioNode* inNode = m_nodes.find(inputPoint.nodeId)->second.get();
     inNode->m_inEdges[inputPoint.portNumber] = edge;
 
-    AtomicBoolGuard editGuard = startEditing();
+    AtomicBoolGuard g(m_editing);
+
+    while (m_processing)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+    }
 
     m_edges.push_back(edge);
 
@@ -118,7 +112,12 @@ bool ProcessGraph::removeConnection(const ConnectionPoint &outputPoint, const Co
         return false;
     }
 
-    AtomicBoolGuard editGuard = startEditing();
+    AtomicBoolGuard guard(m_editing);
+
+    while (m_processing)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+    }
 
     m_edges.erase(edge);
 
@@ -133,7 +132,12 @@ bool ProcessGraph::setInitNode(const ConnectionPoint &newInit)
         return false;
     }
 
-    AtomicBoolGuard editGuard = startEditing();
+    AtomicBoolGuard guard(m_editing);
+
+    while (m_processing)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+    }
 
     m_outEdge->m_inPoint = newInit;
 
@@ -145,7 +149,7 @@ bool ProcessGraph::setInitNode(const ConnectionPoint &newInit)
 
 void ProcessGraph::proccessData(AudioBufferWrapper& outData)
 {
-    auto processingGuard = AtomicBoolGuard(m_processing);
+    AtomicBoolGuard guard(m_processing);
     if(m_editing)
         return;
 

@@ -8,7 +8,7 @@ public:
     AudioNode(unsigned numIn, unsigned numOut);
 
     virtual ~AudioNode() = default;
-    virtual void setActive(float) {}
+    virtual void setActive(float, float) {}
     virtual void setInactive() {}
     virtual bool isActive() { return false; }
 

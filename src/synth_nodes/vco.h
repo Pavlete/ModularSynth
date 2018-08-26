@@ -39,7 +39,7 @@ class VCO
 public:
     VCO(const std::shared_ptr<VCO_Model>&);
 
-    void setActive(float freq) override;
+    void setActive(float freq, float velocity) override;
     void setInactive() override {m_frequency = 0.0f; }
     bool isActive() override{ return static_cast<int>(m_frequency) != 0; }
 
@@ -62,6 +62,7 @@ private:
     //Place your own variables
     Signal m_signal;
     float m_frequency;
+    float m_velocity;
     std::vector<std::function<float(float)>> m_waveforms;
 };
 

@@ -39,7 +39,7 @@ class ProcessGraph
     class Edge;
 public:
 
-    void setNodesOn(float frequency);
+    void setNodesOn(float frequency, float velocity);
 
     void setNodesOff();
 
@@ -66,7 +66,6 @@ private:
                    std::set<int>& visiting,
                    std::vector<int>& visited);
 
-    auto startEditing();
 
     std::unordered_map<int, std::unique_ptr<AudioNode>> m_nodes;
     std::vector<std::shared_ptr<Edge>> m_edges;

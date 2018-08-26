@@ -26,9 +26,10 @@ VCO::VCO(const std::shared_ptr<VCO_Model>& model)
     m_model->addListener(this);
 }
 
-void VCO::setActive(float freq)
+void VCO::setActive(float freq, float velocity)
 {
     m_frequency = freq;
+    m_velocity = velocity;
     m_settingsChanged = true;
 }
 
@@ -46,6 +47,9 @@ void VCO::process()
 {
     updateSettings();
 
+    if(!isActive())
+        return;
+
     auto SignalOutputBuffer = getOutputData(OutputBufferIndex);
 
     if(!SignalOutputBuffer)
@@ -57,7 +61,7 @@ void VCO::process()
 
     for(int i = 0; i < SignalOutputBuffer->sampleCount(); i++)
     {
-        auto sample = m_signal.nextSample();
+        auto sample = m_signal.nextSample() * m_velocity;
         SignalOutputBuffer->addSample(0, i, sample * 0.25f);
         SignalOutputBuffer->addSample(1,i, sample * 0.25f);
     }

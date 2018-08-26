@@ -17,8 +17,8 @@ void ModularVoice::startNote(int midiNoteNumber,
                              SynthesiserSound *,
                              int)
 {
-    m_graph.setNodesOn(static_cast<float>(MidiMessage::getMidiNoteInHertz(midiNoteNumber)));
-    m_outAmpl = velocity;
+    m_graph.setNodesOn(static_cast<float>(MidiMessage::getMidiNoteInHertz(midiNoteNumber)),
+                       velocity);
 }
 
 void ModularVoice::stopNote(float , bool )
@@ -34,9 +34,11 @@ void ModularVoice::renderNextBlock(AudioBuffer<float> &outputBuffer,
                                    int startSample,
                                    int numSamples)
 {
-    AudioBufferWrapper buff = {outputBuffer, numSamples, startSample};
-    m_graph.proccessData(buff);
-    outputBuffer.applyGain(m_outAmpl);
+    if(isVoiceActive())
+    {
+        AudioBufferWrapper buff = {outputBuffer, numSamples, startSample};
+        m_graph.proccessData(buff);
+    }
 }
 
 bool ModularVoice::isVoiceActive() const
@@ -57,14 +59,14 @@ void ModularVoice::connectionAdded(const Connection &conn)
 {
     m_graph.addConnection({conn.outputNode(),
                            static_cast<unsigned>(conn.outputPort())},
-                          {conn.inputNode(),
-                           static_cast<unsigned>(conn.inputPort())});
+    {conn.inputNode(),
+     static_cast<unsigned>(conn.inputPort())});
 }
 
 void ModularVoice::connectionRemoved(const Connection &conn)
 {
     m_graph.removeConnection({conn.outputNode(),
                               static_cast<unsigned>(conn.outputPort())},
-                             {conn.inputNode(),
-                              static_cast<unsigned>(conn.inputPort())});
+    {conn.inputNode(),
+     static_cast<unsigned>(conn.inputPort())});
 }

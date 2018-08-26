@@ -43,6 +43,4 @@ private:
     void nodeAdded(const SharedNode& node) override;
     void connectionAdded(const Connection&) override;
     void connectionRemoved(const Connection&) override;
-
-    float m_outAmpl;
 };
