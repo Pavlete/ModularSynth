@@ -5,7 +5,7 @@
 JuceConnection::JuceConnection(const Connection& model)
     : m_connection(model)
 {
-    setInterceptsMouseClicks(true, true);
+    setInterceptsMouseClicks(true, false);
 }
 
 void JuceConnection::mouseUp(const MouseEvent &)
@@ -32,3 +32,15 @@ unsigned int JuceConnection::getInputPort() const {return m_connection.inputPort
 int JuceConnection::getOutputID() const {return m_connection.outputNode();}
 
 unsigned int JuceConnection::getOutputPort() const {return m_connection.outputPort();}
+
+bool JuceConnection::hitTest(int x, int y)
+{
+    Point<float> pathPoint;
+    Point<float> hitPoint(x + getBounds().getX(),
+                          y + getBounds().getY());
+    m_connectionPath.getNearestPoint(hitPoint, pathPoint);
+
+    auto dist = pathPoint.getDistanceFrom(hitPoint);
+
+    return  dist < 10;
+}

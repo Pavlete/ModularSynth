@@ -1,4 +1,11 @@
 #include "juceaudionode.h"
+#include "style.h"
+
+
+namespace
+{
+    static String font = "sans-serif";
+}
 
 
 JuceAudioNode::JuceAudioNode(const SharedNode& model,
@@ -32,17 +39,36 @@ int JuceAudioNode::getNodeID() const
 
 void JuceAudioNode::paint(Graphics &g)
 {
-    g.setColour(Colours::darkgrey);
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), 8);
+    auto width = getLocalBounds().getWidth();
+
+    g.setColour(colours::module_background);
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), measures::module_radius);
+
+    auto topBand = getLocalBounds().removeFromTop(measures::top_band_size);
+
+    g.setColour(colours::font);
+    g.setFont(Font(20, 1));
+    g.drawText(m_model->name(), topBand + Point<int>(measures::side_margin,0)
+               , Justification::verticallyCentred);
+
+    g.fillRect(measures::side_margin,
+               measures::top_band_size - measures::separation_bar_width,
+               width - 2 * measures::side_margin,
+               measures::separation_bar_width);
+
+    g.setColour(colours::remove_module);
+    g.fillEllipse(topBand.removeFromRight(measures::top_band_size)
+                  .toFloat()
+                  .reduced((measures::top_band_size - measures::remove_size )/2));
 }
 
 void JuceAudioNode::resized()
 {
-    auto rect = getLocalBounds().reduced(4);
-    auto inputSection = rect.removeFromLeft(20)
-            .withTop(10);
-    auto outSection = rect.removeFromRight(20)
-            .withTop(10);
+    auto rect = getLocalBounds().withTop(measures::top_band_size);
+    rect = rect.reduced(measures::side_margin);
+
+    auto inputSection = rect.removeFromLeft(measures::connectors_width);
+    auto outSection = rect.removeFromRight(measures::connectors_width);
 
     for(auto& input : m_inConnectors )
     {
@@ -51,10 +77,10 @@ void JuceAudioNode::resized()
 
     for(auto& output : m_outConnectors )
     {
-        output->setBounds(outSection.removeFromTop(20));
+        output->setBounds(outSection.removeFromBottom(20));
     }    
-    auto contentRect = getLocalBounds().withRight(getWidth() - 24).withLeft(24);
-    setContent(contentRect);
+    rect.reduce(measures::controls_margin, 0);
+    setContent(rect);
 }
 
 void JuceAudioNode::moved()

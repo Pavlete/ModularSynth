@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../UI/nodes_common/juceaudionode.h"
+#include "../UI/common/juceaudionode.h"
 #include "../proccess_graph/audionode.h"
 
 struct Mixer_Model

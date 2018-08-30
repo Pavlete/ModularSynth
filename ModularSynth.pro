@@ -23,10 +23,11 @@ SOURCES += \
     src/sound_proccesing/modularvoice.cpp \
     src/sound_proccesing/onepolefilter.cpp \
     src/sound_proccesing/signal.cpp \
-    src/UI/nodes_common/juceaudionode.cpp \
-    src/UI/nodes_common/juceconnection.cpp \
-    src/UI/nodes_common/ongoingconnection.cpp \
-    src/UI/nodes_common/socket.cpp \
+    src/UI/common/juceaudionode.cpp \
+    src/UI/common/juceconnection.cpp \
+    src/UI/common/ongoingconnection.cpp \
+    src/UI/common/socket.cpp \
+    src/UI/common/style.cpp \
     src/UI/modulemenu.cpp \
     src/UI/synthcanvas.cpp \
     src/synth_nodes/mixer.cpp \
@@ -40,7 +41,6 @@ SOURCES += \
 
 HEADERS += \
     src/maincomponent.h \
-    src/modularvoice.h \
     src/data_models/connection.h \
     src/data_models/identifiers.h \
     src/data_models/node.h \
@@ -57,10 +57,11 @@ HEADERS += \
     src/sound_proccesing/onepolefilter.h \
     src/sound_proccesing/signal.h \
     src/sound_proccesing/waves.h \    
-    src/UI/nodes_common/juceaudionode.h \
-    src/UI/nodes_common/juceconnection.h \
-    src/UI/nodes_common/ongoingconnection.h \
-    src/UI/nodes_common/socket.h \
+    src/UI/common/juceaudionode.h \
+    src/UI/common/juceconnection.h \
+    src/UI/common/ongoingconnection.h \
+    src/UI/common/socket.h \
+    src/UI/common/style.h \
     src/UI/modulemenu.h \
     src/UI/synthcanvas.h \
     src/synth_nodes/mixer.h \

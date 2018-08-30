@@ -23,5 +23,5 @@ private:
     static int m_startSample;
     static int m_numSamples;
 
-    bool m_selfManaged;
+    const bool m_selfManaged;
 };

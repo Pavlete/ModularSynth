@@ -158,8 +158,8 @@ class Module:
 
 
 	def	generateNamespace(self, stream):
-		stream.write('namespace\n{\n\n')
-		stream.write('REGISTER_FACTORY({1}, {0})\n\n}}\n\n'.format(self.name, self.category))
+		stream.write('namespace\n{\n')
+		stream.write('REGISTER_FACTORY({1}, {0})\n}}\n\n'.format(self.name, self.category))
 
 
 
@@ -176,7 +176,7 @@ class Module:
 
 	def generateHeader(self, stream):
 		stream.write('#pragma once\n\n')
-		stream.write('#include "../UI/nodes_common/juceaudionode.h"\n#include "../proccess_graph/audionode.h"\n\n')
+		stream.write('#include "../UI/common/juceaudionode.h"\n#include "../proccess_graph/audionode.h"\n\n')
 		self.generateModelHeader(stream)
 		stream.write("//------------------//\n\n")
 		self.generateAudioModuleHeader(stream)

@@ -5,8 +5,9 @@
 
 namespace
 {
-
 REGISTER_FACTORY(Oscillator, VCO)
+
+using namespace measures;
 
 }
 
@@ -63,7 +64,7 @@ void VCO::process()
     {
         auto sample = m_signal.nextSample() * m_velocity;
         SignalOutputBuffer->addSample(0, i, sample * 0.25f);
-        SignalOutputBuffer->addSample(1,i, sample * 0.25f);
+        SignalOutputBuffer->addSample(1, i, sample * 0.25f);
     }
 }
 
@@ -73,14 +74,18 @@ VCO_GUI::VCO_GUI(const std::shared_ptr<VCO_Model>& model)
     : JuceAudioNode (model, 2, 1)
     , m_model (model)
 {
-    setSize(300, 125);
+    using namespace measures;
+    setSize(basic_module_width + 2 * rotary_width + controls_margin,
+            basic_module_height + rotary_height );
 
     addAndMakeVisible(m_offsetSlider);
     m_offsetSlider.setSliderStyle(Slider::RotaryVerticalDrag);
-    m_offsetSlider.setTextBoxStyle (Slider::TextBoxBelow, true, 50, 10);
+    m_offsetSlider.setTextBoxStyle (Slider::TextBoxBelow, false, 0, 0);
     m_offsetSlider.addListener(this);
     m_offsetSlider.setRange(-2, 2, 0.5);
     m_offsetSlider.setValue(m_model->getOffset());
+    m_offsetSlider.setLookAndFeel(&m_style);
+    m_offsetSlider.setName("Offset");
 
     addAndMakeVisible(m_waveformSlider);
     m_waveformSlider.setSliderStyle(Slider::RotaryVerticalDrag);
@@ -88,12 +93,14 @@ VCO_GUI::VCO_GUI(const std::shared_ptr<VCO_Model>& model)
     m_waveformSlider.addListener(this);
     m_waveformSlider.setRange(0, 3, 1);
     m_waveformSlider.setValue(m_model->getWaveindex());
+    m_waveformSlider.setLookAndFeel(&m_style);
+    m_waveformSlider.setName("Wave");
 }
 
 void VCO_GUI::setContent(Rectangle<int> &r)
 {   
-    m_offsetSlider.setBounds(r.removeFromLeft(r.getWidth()/2).reduced(25));
-    m_waveformSlider.setBounds(r.reduced(25));
+    m_offsetSlider.setBounds(r.removeFromLeft(measures::rotary_width));
+    m_waveformSlider.setBounds(r.removeFromRight(measures::rotary_width));
 }
 
 void VCO_GUI::sliderValueChanged(Slider *slider)

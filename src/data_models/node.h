@@ -22,8 +22,11 @@ struct Node
     int y() const;
     int ID() const;
 
+    String name() const;
+
     void setX(int x);
     void setY(int y);
+
 
     bool isInitModule() const;
     int initPort() const;

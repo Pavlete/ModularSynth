@@ -2,7 +2,7 @@
 
 #include "modulemenu.h"
 #include "../data_models/synthmodel.h"
-#include "nodes_common/juceaudionode.h"
+#include "common/juceaudionode.h"
 
 
 class SynthCanvas : public Component

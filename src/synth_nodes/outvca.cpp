@@ -4,9 +4,7 @@
 
 namespace
 {
-
 REGISTER_FACTORY( , OutVCA)
-
 }
 
 

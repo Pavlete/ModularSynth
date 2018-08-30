@@ -21,4 +21,6 @@ public:
 private:
     Connection m_connection;
     bool m_pathHovered;
+
+    bool hitTest(int x, int y) override;
 };

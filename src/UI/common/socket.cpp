@@ -40,14 +40,12 @@ void Socket::mouseDrag(const MouseEvent &event)
        !m_opositeSocket)
     {
         m_opositeSocket = connector;
-        m_opositeSocket->startMouseEnterAnimation();
         m_ongoing.setAlpha(paired_alpha);
     }
     else if(!connector &&
             m_opositeSocket)
     {
         m_ongoing.setAlpha(non_paired_alpha);
-        m_opositeSocket->startMouseExitAnimation();
         m_opositeSocket = nullptr;
     }
 }
@@ -83,30 +81,23 @@ void Socket::mouseEnter(const MouseEvent&)
 {
     if(m_currentConnection.expired())
     {
-        startMouseEnterAnimation();
+       // startMouseEnterAnimation();
     }
 }
 
 void Socket::mouseExit(const MouseEvent&)
 {
-    startMouseExitAnimation();
+    //startMouseExitAnimation();
 }
 
 void Socket::paint(Graphics &g)
-{
+{    
     g.setColour(m_color);
     auto rect = getLocalBounds();
-    g.fillEllipse(rect.toFloat().reduced(3.0f));
+    g.fillEllipse(rect.toFloat().reduced(2.0f));
 }
 
-void Socket::resized()
-{
-    if(!m_animator.isAnimating(this))
-    {
-        m_noMouseBounds = getBounds();
-        m_mouseHoveredBounds = getBounds().reduced(-2);
-    }
-}
+
 
 void Socket::componentMovedOrResized(Component&, bool wasMoved, bool)
 {
@@ -151,18 +142,4 @@ void Socket::resetOngoingConnection()
     m_ongoing.setAlpha(non_paired_alpha);
     m_ongoing.setAlwaysOnTop(true);
     m_ongoing.setStart(getCenterInCanvas());
-}
-
-void Socket::startMouseEnterAnimation()
-{
-    m_animator.animateComponent(this,
-                                m_mouseHoveredBounds,
-                                1, 200, false, 0.0, 1.0);
-}
-
-void Socket::startMouseExitAnimation()
-{
-    m_animator.animateComponent(this,
-                                m_noMouseBounds,
-                                1, 200, false, 1.0, 0.0);
 }

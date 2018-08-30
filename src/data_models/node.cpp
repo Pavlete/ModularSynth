@@ -16,6 +16,11 @@ int Node::ID() const
     return m_tree.getProperty(IDs::NodeID);
 }
 
+String Node::name() const
+{
+    return m_tree.getType().toString();
+}
+
 void Node::setX(int x)
 {
     m_tree.setProperty(IDs::X, x, nullptr);

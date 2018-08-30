@@ -24,7 +24,6 @@ public:
     void mouseExit(const MouseEvent &event) override;
 
     void paint(Graphics &g) override;
-    void resized() override;
 
     void componentMovedOrResized(Component &component,
                                  bool wasMoved,
@@ -53,12 +52,7 @@ private:
 
 
     // Animating/interactive stuff
-    ComponentAnimator m_animator;
     Colour m_color;
-    Rectangle<int> m_noMouseBounds;
-    Rectangle<int> m_mouseHoveredBounds;
-    void startMouseEnterAnimation();
-    void startMouseExitAnimation();
 
     OngoingConnection& m_ongoing;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../UI/nodes_common/juceaudionode.h"
+#include "../UI/common/juceaudionode.h"
+#include "../UI/common/style.h"
 #include "../proccess_graph/audionode.h"
 #include "../sound_proccesing/signal.h"
 
@@ -82,4 +83,6 @@ private:
 
     Slider m_offsetSlider;
     Slider m_waveformSlider;
+
+    Style m_style;
 };
