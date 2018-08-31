@@ -24,7 +24,7 @@ SynthCanvas::SynthCanvas(SynthModel& synth)
 
 void SynthCanvas::paint(Graphics &g)
 {
-    g.fillAll(Colours::aliceblue);
+    g.fillAll(Colours::darkgrey);
 }
 
 void SynthCanvas::mouseDown(const MouseEvent &event)

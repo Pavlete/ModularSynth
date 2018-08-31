@@ -115,6 +115,14 @@ void Socket::setConnection(std::shared_ptr<JuceConnection> con)
                                          con->setEnd(getCenterInCanvas());
 }
 
+void Socket::removeConnection()
+{
+    if(auto con = m_currentConnection.lock())
+    {
+        con->remove();
+    }
+}
+
 Point<int> Socket::getCenterInCanvas()
 {
     return mapToCanvas(getLocalBounds().getCentre());

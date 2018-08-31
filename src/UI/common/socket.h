@@ -30,6 +30,7 @@ public:
                                  bool wasResized) override;
 
     void setConnection(std::shared_ptr<JuceConnection> con);
+    void removeConnection();
 
     Direction getDirection() const {return m_direction;}
 

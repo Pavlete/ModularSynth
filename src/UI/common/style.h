@@ -27,7 +27,7 @@ namespace colours
 {
     static const Colour module_background = {0xd3, 0xd3, 0xd3};
     static const Colour font = {0x55, 0x55, 0x55};
-    static const Colour remove_module = {0xa4, 0, 0};
+    static const Colour remove_module = {0xFF, 0, 0};
     static const Colour slider = {0,120,0};
 
     static const Colour font_focus =  font.darker(0.5f);

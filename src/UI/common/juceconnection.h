@@ -18,6 +18,8 @@ public:
     unsigned int getInputPort() const;
     int getOutputID() const;
     unsigned int getOutputPort() const;
+
+    void remove();
 private:
     Connection m_connection;
     bool m_pathHovered;

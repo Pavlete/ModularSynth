@@ -12,6 +12,10 @@ JuceAudioNode::JuceAudioNode(const SharedNode& model,
                              int inputNumber,
                              int outputNumber)
     : m_model(model)
+    , m_removeButton("",
+                     colours::remove_module,
+                     colours::remove_module.darker(0.3f),
+                     colours::remove_module.darker(0.3f))
 {
     for(int i = 0; i< inputNumber; i++)
     {
@@ -28,6 +32,11 @@ JuceAudioNode::JuceAudioNode(const SharedNode& model,
     }
 
     setBounds(m_model->x(), m_model->y(), getWidth(),getHeight());
+
+    addAndMakeVisible(m_removeButton);
+    m_buttonPath.addEllipse(0,0,100,100);
+    m_removeButton.addListener(this);
+    m_removeButton.setShape(m_buttonPath,false, false, false);
 }
 
 std::string JuceAudioNode::getConnectorName(int) {return "";}
@@ -55,15 +64,15 @@ void JuceAudioNode::paint(Graphics &g)
                measures::top_band_size - measures::separation_bar_width,
                width - 2 * measures::side_margin,
                measures::separation_bar_width);
-
-    g.setColour(colours::remove_module);
-    g.fillEllipse(topBand.removeFromRight(measures::top_band_size)
-                  .toFloat()
-                  .reduced((measures::top_band_size - measures::remove_size )/2));
 }
 
 void JuceAudioNode::resized()
 {
+    auto topBand = getLocalBounds().removeFromTop(measures::top_band_size);
+
+    m_removeButton.setBounds(topBand.removeFromRight(measures::top_band_size)
+                                    .reduced((measures::top_band_size - measures::remove_size )/2));
+
     auto rect = getLocalBounds().withTop(measures::top_band_size);
     rect = rect.reduced(measures::side_margin);
 
@@ -92,6 +101,18 @@ void JuceAudioNode::moved()
 void JuceAudioNode::parentHierarchyChanged()
 {
     getParentComponent()->addChildComponent(m_ongoing);
+}
+
+void JuceAudioNode::buttonClicked(Button *)
+{
+    for(auto& socket : m_inConnectors)
+    {
+        socket->removeConnection();
+    }
+    for(auto& socket : m_outConnectors)
+    {
+        socket->removeConnection();
+    }
 }
 
 void JuceAudioNode::mouseDown(const MouseEvent &event)

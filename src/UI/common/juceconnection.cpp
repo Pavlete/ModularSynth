@@ -33,6 +33,11 @@ int JuceConnection::getOutputID() const {return m_connection.outputNode();}
 
 unsigned int JuceConnection::getOutputPort() const {return m_connection.outputPort();}
 
+void JuceConnection::remove()
+{
+    m_connection.getParentSynth().removeConnection(m_connection);
+}
+
 bool JuceConnection::hitTest(int x, int y)
 {
     Point<float> pathPoint;

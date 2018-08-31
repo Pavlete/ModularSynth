@@ -3,6 +3,7 @@
 #include "socket.h"
 
 class JuceAudioNode: public Component
+                   , public ButtonListener
 {
 public:
     JuceAudioNode(const SharedNode& model,int inputNumber, int outputNumber);
@@ -32,5 +33,10 @@ private:
 
     ComponentDragger m_dragger;
     OngoingConnection m_ongoing;
+
+    ShapeButton m_removeButton;
+    Path m_buttonPath;
+
+    void buttonClicked(Button *) override;
 };
 
