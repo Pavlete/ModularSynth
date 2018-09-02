@@ -41,6 +41,9 @@ private:
     ProcessGraph m_graph;
 
     void nodeAdded(const SharedNode& node) override;
+    void nodeRemoved(int nodeID) override;
+
     void connectionAdded(const Connection&) override;
-    void connectionRemoved(const Connection&) override;
+    void connectionRemoved(int inputID, unsigned int inputPort,
+                           int outputID, unsigned int outputPort) override;
 };

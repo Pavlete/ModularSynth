@@ -36,11 +36,17 @@ void SynthModel::Listener::valueTreeChildRemoved(ValueTree &parent, ValueTree &r
 {    
     if (parent.hasType(IDs::Connections))
     {
-        connectionRemoved({removed});
+        int outPort = removed.getProperty(IDs::OutPort);
+        int inPort = removed.getProperty(IDs::InPort);
+
+        connectionRemoved(removed.getProperty(IDs::OutId),
+                          static_cast<unsigned int>(outPort),
+                          removed.getProperty(IDs::InId),
+                          static_cast<unsigned int>(inPort));
     }
     else if (parent.hasType(IDs::Nodes))
     {
-        //nodeRemoved({removed});
+        nodeRemoved(removed.getProperty(IDs::NodeID));
     }
 }
 
@@ -72,6 +78,11 @@ void SynthModel::addConnection(int outID, int outPort, int inID, int inPort)
 {
     auto tree = generateConnectionTree(outID, outPort, inID, inPort);
     getConnectionTree().addChild(tree, -1, nullptr);
+}
+
+void SynthModel::removeNode(SharedNode &node)
+{
+    getNodesTree().removeChild(node->m_tree, nullptr);
 }
 
 void SynthModel::removeConnection(Connection& connection)

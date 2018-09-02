@@ -1,7 +1,4 @@
-#include <memory>
-
 #include "synthcanvas.h"
-
 #include "../data_models/nodefactory.h"
 
 SynthCanvas::SynthCanvas(SynthModel& synth)
@@ -9,8 +6,6 @@ SynthCanvas::SynthCanvas(SynthModel& synth)
 {
     synth.addListener(this);
     addChildComponent(m_menu);
-
-    auto a = NodeCatalog::getCategories();
 
     for(auto element : NodeCatalog::getCategories())
     {
@@ -39,6 +34,7 @@ void SynthCanvas::mouseDown(const MouseEvent &event)
         rect.setPosition(event.getPosition());
         m_menu.setBounds(rect);
         m_menu.setVisible(true);
+        m_menu.setAlwaysOnTop(true);
     }
 }
 
@@ -51,26 +47,33 @@ void SynthCanvas::nodeAdded(const SharedNode& mod)
 
 void SynthCanvas::connectionAdded(const Connection& con)
 {    
-    auto newConnection = std::make_shared<JuceConnection>(con);
-    m_connections.push_back(newConnection);
-
-    addAndMakeVisible(newConnection.get());
-    newConnection->setAlwaysOnTop(true);
-
     auto outNode = findNodeByID(con.outputNode());
     auto inNode = findNodeByID(con.inputNode());
 
     if(outNode != m_nodes.end() && inNode != m_nodes.end())
     {
+        auto newConnection = std::make_shared<JuceConnection>(con);
+        m_connections.push_back(newConnection);
+
+        addAndMakeVisible(newConnection.get());
+        newConnection->setAlwaysOnTop(true);
+
         (*outNode)->setConnection(newConnection, Socket::Direction::Output);
         (*inNode)->setConnection(newConnection, Socket::Direction::Input);
     }
 }
 
-void SynthCanvas::connectionRemoved(const Connection& connection)
+void SynthCanvas::nodeRemoved(int nodeID)
 {
-    auto conn = findConnection(connection.outputNode(),
-                               connection.outputPort());
+    auto node = findNodeByID(nodeID);
+    removeChildComponent(node->get());
+    m_nodes.erase(node);
+}
+
+void SynthCanvas::connectionRemoved(int outputID, unsigned int outputPort,
+                                    int inputID, unsigned int inputPort)
+{
+    auto conn = findConnection(outputID, outputPort);
     removeChildComponent(conn->get());
     m_connections.erase(conn);
 }

@@ -16,10 +16,11 @@ public:
     {
     public:
         virtual void nodeAdded(const SharedNode&) {}
-        virtual void nodeRemoved(const SharedNode&) {}
+        virtual void nodeRemoved(int nodeID) {}
 
         virtual void connectionAdded(const Connection&) {}
-        virtual void connectionRemoved(const Connection&) {}
+        virtual void connectionRemoved(int inputID, unsigned int inputPort,
+                                       int outputID, unsigned int outputPort) {}
 
     private:
         void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
@@ -36,6 +37,7 @@ public:
     void addModule(int x, int y, String module);
     void addConnection(int outID, int outPort, int inID, int inPort);
 
+    void removeNode(SharedNode& node);
     void removeConnection(Connection& connection);
 
     void save();

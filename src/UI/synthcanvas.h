@@ -17,7 +17,9 @@ public:
     void nodeAdded(const SharedNode& mod) override;
     void connectionAdded(const Connection& connection) override;
 
-    void connectionRemoved(const Connection& connection) override;
+    void nodeRemoved(int nodeID) override;
+    void connectionRemoved(int outputID, unsigned int outputPort,
+                           int inputID, unsigned int inputPort) override;
 
 private:
     ModuleMenu m_menu;

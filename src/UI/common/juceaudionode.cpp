@@ -100,7 +100,11 @@ void JuceAudioNode::moved()
 
 void JuceAudioNode::parentHierarchyChanged()
 {
-    getParentComponent()->addChildComponent(m_ongoing);
+    auto parent = getParentComponent();
+    if(parent)
+    {
+        getParentComponent()->addChildComponent(m_ongoing);
+    }
 }
 
 void JuceAudioNode::buttonClicked(Button *)
@@ -113,6 +117,9 @@ void JuceAudioNode::buttonClicked(Button *)
     {
         socket->removeConnection();
     }
+
+    auto& model = m_model->getParentSynth();
+    model.removeNode(m_model);
 }
 
 void JuceAudioNode::mouseDown(const MouseEvent &event)

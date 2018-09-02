@@ -55,18 +55,21 @@ void ModularVoice::nodeAdded(const SharedNode &node)
     }
 }
 
-void ModularVoice::connectionAdded(const Connection &conn)
+void ModularVoice::nodeRemoved(int nodeID)
 {
-    m_graph.addConnection({conn.outputNode(),
-                           static_cast<unsigned>(conn.outputPort())},
-    {conn.inputNode(),
-     static_cast<unsigned>(conn.inputPort())});
+    m_graph.removeNode(nodeID);
 }
 
-void ModularVoice::connectionRemoved(const Connection &conn)
+void ModularVoice::connectionAdded(const Connection &conn)
 {
-    m_graph.removeConnection({conn.outputNode(),
-                              static_cast<unsigned>(conn.outputPort())},
-    {conn.inputNode(),
-     static_cast<unsigned>(conn.inputPort())});
+    m_graph.addConnection({conn.outputNode(), conn.outputPort()},
+                          {conn.inputNode(), conn.inputPort()});
+}
+
+
+void ModularVoice::connectionRemoved(int outputID, unsigned int outputPort,
+                                     int inputID, unsigned int inputPort)
+{
+    m_graph.removeConnection({outputID, outputPort},
+                             {inputID,inputPort});
 }
