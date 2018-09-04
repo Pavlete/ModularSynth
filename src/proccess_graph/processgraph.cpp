@@ -64,14 +64,15 @@ bool ProcessGraph::removeNode(int nodeId)
 
 bool ProcessGraph::addConnection(const ConnectionPoint &outputPoint, const ConnectionPoint &inputPoint)
 {
-    if(!m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) ||
-            !m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) )
+    auto edge = std::make_shared<Edge>(outputPoint,
+                                       inputPoint);
+
+    if(std::find_if(m_edges.begin(), m_edges.end(),
+                    [&edge](const auto& e) {return *e  == *edge;})
+            != m_edges.end())
     {
         return false;
     }
-
-    auto edge = std::make_shared<Edge>(outputPoint,
-                                       inputPoint);
 
     AudioNode* outNode = m_nodes.find(outputPoint.nodeId)->second.get();
     outNode->m_outEdges[outputPoint.portNumber] = edge;
@@ -93,19 +94,10 @@ bool ProcessGraph::addConnection(const ConnectionPoint &outputPoint, const Conne
 
 bool ProcessGraph::removeConnection(const ConnectionPoint &outputPoint, const ConnectionPoint &inputPoint)
 {
-    if(m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) ||
-            m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) )
-    {
-        return false;
-    }
 
-    auto edge = std::find_if(m_edges.begin(), m_edges.end(), [&](const std::shared_ptr<Edge>& n)
-    {
-        return n->m_outPoint.nodeId == outputPoint.nodeId &&
-                n->m_outPoint.portNumber == outputPoint.portNumber &&
-                n->m_inPoint.nodeId == inputPoint.nodeId &&
-                n->m_inPoint.portNumber == inputPoint.portNumber;
-    });
+    auto edge = std::find_if(m_edges.begin(), m_edges.end(),
+                    [&](const auto& e) {return e->m_inPoint == inputPoint &&
+                                               e->m_outPoint == outputPoint ;});
 
     if(edge == m_edges.end())
     {

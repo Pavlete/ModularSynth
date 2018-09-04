@@ -45,13 +45,17 @@ void OutVCA::process()
 OutVCA_GUI::OutVCA_GUI(const std::shared_ptr<OutVCA_Model>& model)
     : JuceAudioNode (model, 1, 0)
     , m_model (model)
+    , m_volumeSlider ("dBs",
+                      {-40, 0, 1},
+                      this,
+                      Slider::RotaryHorizontalVerticalDrag,
+                      m_model->getAmplitude())
 {
-    setSize(125, 125);
+    using namespace measures;
+    setSize(basic_module_width + rotary_width,
+            basic_module_height + rotary_height );
 
     addAndMakeVisible(m_volumeSlider);
-    m_volumeSlider.addListener(this);
-    m_volumeSlider.setRange(-60, 0, 1);
-    m_volumeSlider.setValue(m_model->getAmplitude());
 }
 
 void OutVCA_GUI::setContent(Rectangle<int> &r)

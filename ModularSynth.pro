@@ -35,7 +35,8 @@ SOURCES += \
     src/synth_nodes/outvca.cpp \
     src/synth_nodes/outvca_base.cpp \
     src/synth_nodes/vco.cpp \
-    src/synth_nodes/vco_base.cpp
+    src/synth_nodes/vco_base.cpp \
+    src/UI/common/customslider.cpp
 
 
 
@@ -66,6 +67,7 @@ HEADERS += \
     src/UI/synthcanvas.h \
     src/synth_nodes/mixer.h \
     src/synth_nodes/outvca.h \
-    src/synth_nodes/vco.h
+    src/synth_nodes/vco.h \
+    src/UI/common/customslider.h
 
 

@@ -64,24 +64,29 @@ void Mixer::process()
 Mixer_GUI::Mixer_GUI(const std::shared_ptr<Mixer_Model>& model)
 	: JuceAudioNode (model, 2, 1)
     , m_model (model)
+    , m_input1Slider ("Level 1",
+                      {-40, 0, 1},
+                      this,
+                      Slider::RotaryHorizontalVerticalDrag,
+                      m_model->getInput1amplitude())
+    , m_input2Slider ("Level 2",
+                      {-40, 0, 1},
+                      this,
+                      Slider::RotaryHorizontalVerticalDrag,
+                      m_model->getInput2amplitude())
 {
-    setSize(300, 125);
+    using namespace measures;
+    setSize(basic_module_width + rotary_width ,
+            basic_module_height + 2 * rotary_height + controls_margin );
 
     addAndMakeVisible(m_input1Slider);
-    m_input1Slider.addListener(this);
-    m_input1Slider.setRange(-23, 0, 1);
-    m_input1Slider.setValue(m_model->getInput1amplitude());
-
     addAndMakeVisible(m_input2Slider);
-    m_input2Slider.addListener(this);
-    m_input2Slider.setRange(-23, 0, 1);
-    m_input2Slider.setValue(m_model->getInput2amplitude());
 }
 
 void Mixer_GUI::setContent(Rectangle<int> &r)
 {
-    m_input1Slider.setBounds(r.removeFromTop(getHeight()/2));
-    m_input2Slider.setBounds(r);
+    m_input1Slider.setBounds(r.removeFromTop(measures::rotary_height));
+    m_input2Slider.setBounds(r.removeFromBottom(measures::rotary_height));
 }
 
 void Mixer_GUI::sliderValueChanged(Slider *slider)

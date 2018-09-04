@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../UI/common/juceaudionode.h"
+#include "../UI/common/customslider.h"
 #include "../proccess_graph/audionode.h"
 
 struct Mixer_Model
@@ -73,6 +74,6 @@ public:
 private:
     std::shared_ptr<Mixer_Model> m_model;
 
-    Slider m_input1Slider;
-    Slider m_input2Slider;
+    CustomSlider m_input1Slider;
+    CustomSlider m_input2Slider;
 };

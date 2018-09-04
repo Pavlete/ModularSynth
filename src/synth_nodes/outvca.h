@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../UI/common/customslider.h"
 #include "../UI/common/juceaudionode.h"
 #include "../proccess_graph/audionode.h"
 
@@ -65,7 +66,7 @@ public:
 private:
     std::shared_ptr<OutVCA_Model> m_model;
 
-    Slider m_volumeSlider;
+    CustomSlider m_volumeSlider;
 };
 
 

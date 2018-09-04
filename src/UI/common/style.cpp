@@ -5,8 +5,6 @@ void Style::drawRotarySlider(Graphics &g, int x, int y, int width,
                              int height, float sliderPos, const float rotaryStartAngle,
                              const float rotaryEndAngle, Slider &slider)
 {
-    auto outline = slider.findColour (Slider::rotarySliderOutlineColourId);
-
     auto fill = slider.isMouseOverOrDragging()? colours::slider_focus : colours::slider;
     auto font = slider.isMouseOverOrDragging()? colours::font_focus : colours::font;
 

@@ -37,6 +37,7 @@ enum class PointDirection
 class ProcessGraph
 {
     class Edge;
+
 public:
 
     void setNodesOn(float frequency, float velocity);
@@ -90,12 +91,23 @@ class ProcessGraph::Edge
     ConnectionPoint m_outPoint;
     ConnectionPoint m_inPoint;
 
+    bool operator==(const Edge& other)
+    {
+        return m_outPoint == other.m_outPoint &&
+               m_inPoint == other.m_inPoint;
+    }
+
     friend class ProcessGraph;
     friend class AudioNode;
 
 public:
-    Edge(ConnectionPoint outPoint = {INVALID_NODE_ID, 0},
-         ConnectionPoint inPoint = {INVALID_NODE_ID, 0})
+    Edge()
+        : m_outPoint ({INVALID_NODE_ID,0})
+        , m_inPoint ({INVALID_NODE_ID,0})
+    {}
+
+    Edge(ConnectionPoint outPoint,
+         ConnectionPoint inPoint)
         : m_outPoint (outPoint)
         , m_inPoint (inPoint)
     {}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UI/common/juceaudionode.h"
-#include "../UI/common/style.h"
+#include "../UI/common/customslider.h"
 #include "../proccess_graph/audionode.h"
 #include "../sound_proccesing/signal.h"
 
@@ -81,8 +81,8 @@ public:
 private:
     std::shared_ptr<VCO_Model> m_model;
 
-    Slider m_offsetSlider;
-    Slider m_waveformSlider;
+    CustomSlider m_offsetSlider;
+    CustomSlider m_waveformSlider;
 
     Style m_style;
 };

@@ -1,5 +1,6 @@
 #include "synthcanvas.h"
 #include "../data_models/nodefactory.h"
+#include "../UI/common/style.h"
 
 SynthCanvas::SynthCanvas(SynthModel& synth)
     : m_menu (synth)
@@ -19,7 +20,7 @@ SynthCanvas::SynthCanvas(SynthModel& synth)
 
 void SynthCanvas::paint(Graphics &g)
 {
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(colours::canvas_background);
 }
 
 void SynthCanvas::mouseDown(const MouseEvent &event)
