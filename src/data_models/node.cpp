@@ -36,6 +36,11 @@ void Node::addListener(Node::Listener *listener)
     m_tree.addListener(listener);
 }
 
+void Node::removeListener(Node::Listener *listener)
+{
+    m_tree.removeListener(listener);
+}
+
 bool Node::isInitModule() const
 {
     return m_tree.getProperty(IDs::IsInitNode, false);

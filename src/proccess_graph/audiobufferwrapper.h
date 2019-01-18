@@ -12,9 +12,17 @@ public:
 
     void clear();
 
-    void addSample(int channel, int sampleNumber, float value);
+    inline void setSample(int channel, int sampleNumber, float value)
+    {
+        m_selfManaged? m_outputBuffer->setSample(channel, sampleNumber + m_startSample, value)
+                     : m_outputBuffer->addSample(channel, sampleNumber + m_startSample, value) ;
+    }
 
-    float sample(int channel, int sampleNumber) const;
+    inline float sample(int channel, int sampleNumber) const
+    {
+        return m_outputBuffer->getSample(channel, sampleNumber + m_startSample);
+    }
+
     int sampleCount() const;
 
 private:

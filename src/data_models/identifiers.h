@@ -3,6 +3,7 @@
 
 namespace IDs
 {
+
 static const String Connections = "connections";
 static const String Nodes = "nodes";
 

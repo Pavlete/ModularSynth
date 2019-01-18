@@ -1,55 +1,35 @@
 #include "audionode.h"
 #include "processgraph.h"
 
-#include <chrono>
-#include <thread>
-
-namespace
-{
-class AtomicBoolGuard
-{
-public:
-    AtomicBoolGuard(std::atomic_bool& ab)
-        : m_ab(ab)
-    { m_ab = true; }
-
-    AtomicBoolGuard(const AtomicBoolGuard& other) = delete;
-    AtomicBoolGuard& operator =(const AtomicBoolGuard& other) = delete;
-
-
-    ~AtomicBoolGuard()
-    { m_ab = false; }
-
-private:
-    std::atomic_bool& m_ab;
-};
-}
+ProcessGraph::ProcessGraph()
+    : m_outEdge(std::make_shared<Edge>())
+    , m_currentPath(std::make_shared<AudioNodeVector>())
+{ }
 
 void ProcessGraph::setNodesOn(float frequency, float velocity)
 {
-    std::for_each(m_currentPath.begin(), m_currentPath.end(), [&](int nodeID)
+    std::for_each(m_currentPath->begin(), m_currentPath->end(), [frequency, velocity](auto& node)
     {
-        m_nodes[nodeID]->setActive(frequency, velocity);
+        node->setActive(frequency, velocity);
     });
 }
 
 void ProcessGraph::setNodesOff()
 {
-    std::for_each(m_currentPath.begin(), m_currentPath.end(),
-                  [&](int nodeID)
+    std::for_each(m_currentPath->begin(), m_currentPath->end(),[](auto& node)
     {
-        m_nodes[nodeID]->setInactive();
+        node->setInactive();
     });
 }
 
 bool ProcessGraph::isActive() const
 {
-    auto element = std::find_if(m_currentPath.begin(), m_currentPath.end(), [&](int nodeID)
+    auto element = std::find_if(m_currentPath->begin(), m_currentPath->end(), [](auto& node)
     {
-        return m_nodes.find(nodeID)->second->isActive();
+        return node->isActive();
     });
 
-    return element != m_currentPath.end();
+    return element != m_currentPath->end();
 }
 
 bool ProcessGraph::addNode(int nodeID, std::unique_ptr<AudioNode> node){
@@ -59,59 +39,42 @@ bool ProcessGraph::addNode(int nodeID, std::unique_ptr<AudioNode> node){
 
 bool ProcessGraph::removeNode(int nodeId)
 {
+    //TODO: check if node is connected and return false in case it is
     return m_nodes.erase( nodeId ) != 0;
 }
 
 bool ProcessGraph::addConnection(const ConnectionPoint &outputPoint, const ConnectionPoint &inputPoint)
 {
-    auto edge = std::make_shared<Edge>(outputPoint,
-                                       inputPoint);
-
-    if(std::find_if(m_edges.begin(), m_edges.end(),
-                    [&edge](const auto& e) {return *e  == *edge;})
-            != m_edges.end())
+    if(!m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) ||
+            !m_nodes.at(outputPoint.nodeId)->isAvailable(outputPoint.portNumber, PointDirection::Output) )
     {
         return false;
     }
+
+    auto edge = std::make_shared<Edge>(outputPoint,
+                                       inputPoint);
 
     AudioNode* outNode = m_nodes.find(outputPoint.nodeId)->second.get();
     outNode->m_outEdges[outputPoint.portNumber] = edge;
 
     AudioNode* inNode = m_nodes.find(inputPoint.nodeId)->second.get();
-    inNode->m_inEdges[inputPoint.portNumber] = edge;
-
-    AtomicBoolGuard g(m_editing);
-
-    while (m_processing)
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-    }
-
-    m_edges.push_back(edge);
+    inNode->m_inEdges[inputPoint.portNumber] = edge;   
 
     return updatePath();
 }
 
 bool ProcessGraph::removeConnection(const ConnectionPoint &outputPoint, const ConnectionPoint &inputPoint)
 {
+    auto& outEdge = m_nodes.at(outputPoint.nodeId)->m_outEdges.at(outputPoint.portNumber);
+    auto& inEdge = m_nodes.at(inputPoint.nodeId)->m_inEdges.at(inputPoint.portNumber);
 
-    auto edge = std::find_if(m_edges.begin(), m_edges.end(),
-                    [&](const auto& e) {return e->m_inPoint == inputPoint &&
-                                               e->m_outPoint == outputPoint ;});
-
-    if(edge == m_edges.end())
+    if(!outEdge || !inEdge || outEdge != inEdge)
     {
         return false;
     }
 
-    AtomicBoolGuard guard(m_editing);
-
-    while (m_processing)
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-    }
-
-    m_edges.erase(edge);
+    outEdge.reset();
+    inEdge.reset();
 
     return updatePath();
 }
@@ -124,13 +87,6 @@ bool ProcessGraph::setInitNode(const ConnectionPoint &newInit)
         return false;
     }
 
-    AtomicBoolGuard guard(m_editing);
-
-    while (m_processing)
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-    }
-
     m_outEdge->m_inPoint = newInit;
 
     auto outNode = m_nodes.find(newInit.nodeId)->second.get();
@@ -141,15 +97,9 @@ bool ProcessGraph::setInitNode(const ConnectionPoint &newInit)
 
 void ProcessGraph::proccessData(AudioBufferWrapper& outData)
 {
-    AtomicBoolGuard guard(m_processing);
-    if(m_editing)
-        return;
-
     m_outEdge->setMyOwnData(&outData);
-    for(auto& element : m_currentPath)
-    {
-        m_nodes[element]->process();
-    }
+    auto syncPath = std::atomic_load(&m_currentPath);
+    for_each(syncPath->begin(), syncPath->end(), [] (auto& node){ node->process();});
 }
 
 bool ProcessGraph::updatePath()
@@ -159,16 +109,25 @@ bool ProcessGraph::updatePath()
         return false;
     }
 
-    m_currentPath.clear();
-    std::set<int> visitingSet;
-    return visitNode(m_outEdge->m_inPoint.nodeId, visitingSet, m_currentPath);
+    std::set<int> visiting;
+    std::vector<int> visited;
+    if (!visitNode(m_outEdge->m_inPoint.nodeId, visiting, visited))
+    {
+        return false;
+    }
+
+    auto newPath = std::make_shared<AudioNodeVector>();
+    std::transform(visited.begin(), visited.end(), std::back_inserter(*newPath),
+                   [&](auto id) {return m_nodes[id]->clone();});
+    std::atomic_store(&m_currentPath, newPath);
+
+    return true;
 }
 
-bool ProcessGraph::visitNode(int nodeId, std::set<int> &visiting, std::vector<int> &visited)
+bool ProcessGraph::visitNode(int nodeId, std::set<int> &visiting, std::vector<int>& visited)
 {
     if(visiting.find(nodeId) != visiting.end())
     {
-        visited.clear();
         return false;
     }
 
@@ -181,9 +140,9 @@ bool ProcessGraph::visitNode(int nodeId, std::set<int> &visiting, std::vector<in
     auto node = m_nodes.find(nodeId)->second.get();
     for(auto inputEdge : node->m_inEdges)
     {
-        if(auto ptr = inputEdge.lock())
+        if(inputEdge)
         {
-            if(!visitNode(ptr->m_outPoint.nodeId, visiting, visited))
+            if(!visitNode(inputEdge->m_outPoint.nodeId, visiting, visited))
             {
                 return false;
             }

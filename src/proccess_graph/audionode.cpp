@@ -12,37 +12,25 @@ bool AudioNode::isAvailable(unsigned port,
 {
     auto edges = direction == PointDirection::Input?
                 m_inEdges : m_outEdges;
-    return edges.size() > port && edges.at(port).expired();
+    return edges.size() > port && !edges.at(port);
 }
 
-AudioBufferWrapper *AudioNode::getInputData(unsigned index)
+const AudioBufferWrapper* AudioNode::getInputData(unsigned index) const
 {
-    if(m_inEdges.size() < index)
+    if(auto ptr = m_inEdges[index])
     {
-        return nullptr;
+        return ptr->getData();
     }
 
-    auto ptr = m_inEdges[index].lock();
-    if(!ptr)
-    {
-        return nullptr;
-    }
-
-    return ptr->getData();
+    return nullptr;
 }
 
-AudioBufferWrapper *AudioNode::getOutputData(unsigned index)
+AudioBufferWrapper* AudioNode::getOutputData(unsigned index) const
 {
-    if(m_outEdges.size() < index)
+    if(auto ptr = m_outEdges[index])
     {
-        return nullptr;
+        return ptr->getData();
     }
 
-    auto ptr = m_outEdges[index].lock();
-    if(!ptr)
-    {
-        return nullptr;
-    }
-
-    return ptr->getData();
+    return nullptr;
 }

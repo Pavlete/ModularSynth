@@ -27,11 +27,11 @@ struct Node
     void setX(int x);
     void setY(int y);
 
-
     bool isInitModule() const;
     int initPort() const;
 
     void addListener(Listener* listener);
+    void removeListener(Listener* listener);
 
     SynthModel getParentSynth();
 

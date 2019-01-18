@@ -38,8 +38,8 @@ public:
     void process() override;
 private:
     std::shared_ptr<OutVCA_Model> m_model;
-    std::atomic<float> m_amplitude;
-    std::atomic_bool m_settingsChanged;
+    float m_amplitude;
+    bool m_settingsChanged;
 
     void amplitudeChanged(float amplitude) override;
 
@@ -50,6 +50,8 @@ private:
 
     //Place your own variables
     float m_amplitudeSetting;
+
+    std::unique_ptr<AudioNode> clone() override;
 };
 
 //------------------//

@@ -17,28 +17,29 @@ public:
                 const String& category,
                 const NodeFactory& treeFactory)
     {
-        getAudioNodeMap().insert({name, treeFactory});
-        getCategoriesMap().insert({category, name});
+        audioNodeMap().insert({name, treeFactory});
+        categoriesMap().insert({category, name});
     }
 
     static std::shared_ptr< Node > getNode(const ValueTree& tree)
     {
-        auto map = getAudioNodeMap();
-        auto item = map.find(tree.getType().toString());
-        return item == map.end()? nullptr : item->second(tree);
+        auto item = audioNodeMap().find(tree.getType().toString());
+        return item == audioNodeMap().end()? nullptr : item->second(tree);
     }
-    static const CategoriesMap& getCategories()
+
+    static const CategoriesMap& categories()
     {
-        return getCategoriesMap();
+        return categoriesMap();
     }
 
 private:
-    static NodeModelMap& getAudioNodeMap()
+    static NodeModelMap& audioNodeMap()
     {
         static NodeModelMap funcmap;
         return funcmap;
     }
-    static CategoriesMap& getCategoriesMap()
+
+    static CategoriesMap& categoriesMap()
     {
         static CategoriesMap funcmap;
         return funcmap;

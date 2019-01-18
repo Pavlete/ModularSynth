@@ -13,7 +13,7 @@ void OutVCA::updateSettings()
     if(m_settingsChanged)
     {
         m_settingsChanged = false;
-        m_amplitudeSetting = Decibels::decibelsToGain<float>(m_amplitude.load());
+        m_amplitudeSetting = Decibels::decibelsToGain<float>(m_amplitude);
     }
 }
 
@@ -33,8 +33,8 @@ void OutVCA::process()
     {
         auto nextLeftSample = inBuffer->sample(0,i) * m_amplitudeSetting;
         auto nextRightSample = inBuffer->sample(1,i) * m_amplitudeSetting;
-        outBuffer->addSample(0, i, nextLeftSample);
-        outBuffer->addSample(1, i, nextRightSample);
+        outBuffer->setSample(0, i, nextLeftSample);
+        outBuffer->setSample(1, i, nextRightSample);
     }
 }
 

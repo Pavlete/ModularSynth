@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <iostream>
-
 #include "audiobufferwrapper.h"
 
 
@@ -36,9 +34,11 @@ enum class PointDirection
 
 class ProcessGraph
 {
+    using AudioNodeVector = std::vector<std::unique_ptr<AudioNode>>;
     class Edge;
 
 public:
+    ProcessGraph();
 
     void setNodesOn(float frequency, float velocity);
 
@@ -69,13 +69,8 @@ private:
 
 
     std::unordered_map<int, std::unique_ptr<AudioNode>> m_nodes;
-    std::vector<std::shared_ptr<Edge>> m_edges;
-    std::shared_ptr<Edge> m_outEdge = std::make_shared<Edge>();
-
-    std::vector<int> m_currentPath;
-
-    std::atomic<bool> m_processing = {false};
-    std::atomic<bool> m_editing = {false};
+    std::shared_ptr<Edge> m_outEdge;
+    std::shared_ptr<AudioNodeVector> m_currentPath;
 
     friend class AudioNode;
 };

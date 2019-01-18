@@ -59,4 +59,9 @@ void OutVCA::amplitudeChanged(float amplitude)
     m_settingsChanged = true;
 }
 
+std::unique_ptr<AudioNode> OutVCA::clone()
+{
+    return std::make_unique<OutVCA>(*this);
+}
+
 

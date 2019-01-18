@@ -1,9 +1,12 @@
 #pragma once
 
+#include <atomic>
+
 #include "../UI/common/juceaudionode.h"
 #include "../UI/common/customslider.h"
 #include "../proccess_graph/audionode.h"
 #include "../sound_proccesing/signal.h"
+#include "../sound_proccesing/waves.h"
 
 struct VCO_Model
     : public Node
@@ -28,7 +31,6 @@ struct VCO_Model
 
     std::function<std::unique_ptr<AudioNode> ()> getAudioFactory() override;
     std::function<std::unique_ptr<JuceAudioNode> ()> getUIFactory() override;
-
 };
 
 //------------------//
@@ -39,16 +41,19 @@ class VCO
 {
 public:
     VCO(const std::shared_ptr<VCO_Model>&);
+    VCO(const VCO&);
+    virtual ~VCO();
 
-    void setActive(float freq, float velocity) override;
-    void setInactive() override {m_frequency = 0.0f; }
-    bool isActive() override{ return static_cast<int>(m_frequency) != 0; }
+    virtual void setActive(float freq, float velocity) override;
+    virtual void setInactive() override {m_frequency = 0.0f; }
+    virtual bool isActive() override{ return static_cast<int>(m_frequency) != 0; }
 
-    void process() override;
+    virtual void process() override;
 private:
     std::shared_ptr<VCO_Model> m_model;
+
     std::atomic<float> m_offset;
-    std::atomic<int> m_waveIndex;
+    std::atomic_int m_waveIndex;
     std::atomic_bool m_settingsChanged;
 
     void offsetChanged(float offset) override;
@@ -56,15 +61,16 @@ private:
 
     void updateSettings();
 
-    const unsigned int AmplitudeModBufferIndex = 0;
-    const unsigned int FreqModBufferIndex = 1;
-    const unsigned int OutputBufferIndex = 0;
+    //Place AND initialize here your own variables
+    Signal m_signal = Signal(44100);
+    float m_frequency = 0.0f;
+    float m_velocity = 0.0f;
+    std::vector<std::function<float(float)>> m_waveforms = {waveforms::sin,
+            waveforms::square,
+            waveforms::sawtooth,
+            waveforms::triangle};
 
-    //Place your own variables
-    Signal m_signal;
-    float m_frequency;
-    float m_velocity;
-    std::vector<std::function<float(float)>> m_waveforms;
+    std::unique_ptr<AudioNode> clone() override;
 };
 
 //------------------//

@@ -1,6 +1,3 @@
-# Automatically generated qmake file, created by the Introjucer
-# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
-
 TEMPLATE = app
 CONFIG  += warn_off
 CONFIG  += c++14

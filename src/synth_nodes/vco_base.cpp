@@ -1,5 +1,7 @@
 #include "vco.h"
 
+#include "../data_models/nodefactory.h"
+
 namespace
 {
 
@@ -8,6 +10,8 @@ const static float DefaultOffset = 0;
 
 const static String Waveindex = "waveIndex";
 const static int DefaultWaveindex = 0;
+
+REGISTER_FACTORY(Oscillator, VCO)
 
 }
 
@@ -61,6 +65,28 @@ std::function<std::unique_ptr<JuceAudioNode> ()> VCO_Model::getUIFactory()
 
 //------------------//
 
+VCO::VCO(const std::shared_ptr<VCO_Model>& model)
+    : AudioNode (2, 1)
+    , m_model (model)
+    , m_offset (model->getOffset())
+    , m_waveIndex (model->getWaveindex())
+{
+    m_model->addListener(this);
+}
+
+VCO::VCO(const VCO &oth)
+    : AudioNode ( oth )
+    , m_model (oth.m_model)
+    , m_offset (oth.m_model->getOffset())
+    , m_waveIndex (oth.m_model->getWaveindex())
+{
+    m_model->addListener(this);
+}
+
+VCO::~VCO()
+{
+    m_model->removeListener(this);
+}
 
 void VCO::offsetChanged(float offset)
 {
@@ -74,4 +100,8 @@ void VCO::waveIndexChanged(int waveIndex)
 	m_settingsChanged = true;
 }
 
+std::unique_ptr<AudioNode> VCO::clone()
+{
+    return std::make_unique<VCO>(*this);
+}
 

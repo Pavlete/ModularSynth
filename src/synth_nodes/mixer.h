@@ -37,13 +37,14 @@ class Mixer
 {
 public:
     Mixer(const std::shared_ptr<Mixer_Model>&);
+    Mixer(const Mixer&) = default;
 
     void process() override;
 private:
     std::shared_ptr<Mixer_Model> m_model;
-    std::atomic<int> m_input1Amplitude;
-    std::atomic<int> m_input2Amplitude;
-    std::atomic_bool m_settingsChanged;
+    int m_input1Amplitude;
+    int m_input2Amplitude;
+    bool m_settingsChanged;
 
     void input1AmplitudeChanged(int input1Amplitude) override;
     void input2AmplitudeChanged(int input2Amplitude) override;
@@ -57,6 +58,8 @@ private:
     //Place your own variables
     float m_input1attenuation;
     float m_input2attenuation;
+
+    std::unique_ptr<AudioNode> clone() override;
 
 };
 

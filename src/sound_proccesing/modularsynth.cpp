@@ -3,6 +3,9 @@
 #include "modularsynth.h"
 #include "modularvoice.h"
 
+#include <chrono>
+
+using namespace std::chrono;
 
 ModularSynth::ModularSynth(MidiKeyboardState &keyState,
                            SynthModel& model)

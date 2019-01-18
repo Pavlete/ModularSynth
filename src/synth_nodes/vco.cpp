@@ -1,29 +1,11 @@
 #include "vco.h"
-
-#include "../data_models/nodefactory.h"
-#include "../sound_proccesing/waves.h"
+#include <chrono>
 
 namespace
 {
-
-REGISTER_FACTORY(Oscillator, VCO)
-
-}
-
-
-VCO::VCO(const std::shared_ptr<VCO_Model>& model)
-    : AudioNode (2, 1)
-    , m_model (model)
-    , m_offset (model->getOffset())
-    , m_waveIndex (model->getWaveindex())
-    , m_signal (44100)
-    , m_frequency (0.0)
-    , m_waveforms {waveforms::sin,
-                   waveforms::square,
-                   waveforms::sawtooth,
-                   waveforms::triangle}
-{
-    m_model->addListener(this);
+static const unsigned int AmplitudeModBufferIndex = 0;
+static const unsigned int FreqModBufferIndex = 1;
+static const unsigned int OutputBufferIndex = 0;
 }
 
 void VCO::setActive(float freq, float velocity)
@@ -37,9 +19,9 @@ void VCO::updateSettings()
 {
     if(m_settingsChanged)
     {
+        m_settingsChanged = false;
         m_signal.setFrequency(m_frequency * exp2f(m_offset));
         m_signal.setWaveFunction(m_waveforms[m_waveIndex]);
-        m_settingsChanged = false;
     }
 }
 
@@ -47,23 +29,18 @@ void VCO::process()
 {
     updateSettings();
 
-    if(!isActive())
-        return;
-
-    auto SignalOutputBuffer = getOutputData(OutputBufferIndex);
+    auto outputBuffer = getOutputData(OutputBufferIndex);
 
     if(!SignalOutputBuffer)
     {
         return;
     }
 
-    SignalOutputBuffer->clear();
-
-    for(int i = 0; i < SignalOutputBuffer->sampleCount(); i++)
+    for(int i = 0; i < outputBuffer->sampleCount(); i++)
     {
         auto sample = m_signal.nextSample() * m_velocity;
-        SignalOutputBuffer->addSample(0, i, sample * 0.25f);
-        SignalOutputBuffer->addSample(1, i, sample * 0.25f);
+        outputBuffer->setSample(0, i, sample * 0.25f);
+        outputBuffer->setSample(1, i, sample * 0.25f);
     }
 }
 

@@ -17,12 +17,14 @@ public:
     bool isAvailable(unsigned port, PointDirection direction);
 
 protected:
-    AudioBufferWrapper* getInputData(unsigned index);
-    AudioBufferWrapper* getOutputData(unsigned index);
+    const AudioBufferWrapper* getInputData(unsigned index) const;
+    AudioBufferWrapper* getOutputData(unsigned index) const;
 
 private:
-    std::vector<std::weak_ptr<ProcessGraph::Edge>> m_inEdges;
-    std::vector<std::weak_ptr<ProcessGraph::Edge>> m_outEdges;
+    std::vector<std::shared_ptr<ProcessGraph::Edge>> m_inEdges;
+    std::vector<std::shared_ptr<ProcessGraph::Edge>> m_outEdges;
+
+    virtual std::unique_ptr<AudioNode> clone() = 0;
 
     friend class ProcessGraph;
 };

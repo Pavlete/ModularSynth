@@ -1,39 +1,10 @@
-CONFIG(release, debug|release){
-    DESTDIR     = build/release/
-    OBJECTS_DIR = build/release/intermediate/
-    TARGET = NewProject
-}
-CONFIG(debug, debug|release){
-    DESTDIR     = build/debug/
-    OBJECTS_DIR = build/debug/intermediate/
-    TARGET = NewProject
-}
-
 # Compiler flags
-QMAKE_CXXFLAGS = -std=c++11 -Wall
+QMAKE_CXXFLAGS = -Wall
 unix:  QMAKE_CXXFLAGS += -I/usr/include/freetype2 -I/usr/include `pkg-config --cflags alsa freetype2 libcurl x11 xext xinerama` -pthread -DLINUX=1
 win32: QMAKE_CXXFLAGS += -mstackrealign -D__MINGW__=1 -D__MINGW_EXTENSION=
 
 QMAKE_CXXFLAGS_DEBUG   = -g -ggdb  -O0
-CONFIG(debug, debug|release){
-    DEFINES += \
-        "DEBUG=1" \
-        "_DEBUG=1" \
-        "JUCER_QT_CREATOR_D5F46ABF=1" \
-        "JUCE_APP_VERSION=1.0.0" \
-        "JUCE_APP_VERSION_HEX=0x10000" \
-
-}
-
 QMAKE_CXXFLAGS_RELEASE =  -O3
-CONFIG(release, debug|release){
-    DEFINES += \
-        "NDEBUG=1" \
-        "JUCER_QT_CREATOR_D5F46ABF=1" \
-        "JUCE_APP_VERSION=1.0.0" \
-        "JUCE_APP_VERSION_HEX=0x10000" \
-}
-
 
 QMAKE_CFLAGS         = $$QMAKE_CXXFLAGS
 QMAKE_CFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE
@@ -42,14 +13,11 @@ QMAKE_CFLAGS_DEBUG   = $$QMAKE_CXXFLAGS_DEBUG
 INCLUDEPATH = JUCE/modules \
               JuceLibraryCode
 
-
-
 # Linker flags
 LIBS = -L$$DESTDIR
 unix:  LIBS += -L/usr/X11R6/lib/ `pkg-config --libs alsa freetype2 libcurl x11 xext xinerama` -lGL -ldl -lpthread -lrt
 win32: LIBS += -lgdi32 -luser32 -lkernel32 -lcomctl32 -lcomdlg32 -limm32 -lole32 -loleaut32 -lopengl32 -lrpcrt4 -lshlwapi -luuid -lversion -lwininet -lwinmm -lws2_32 -lwsock32 -static -lpthread
 win32: QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
-QMAKE_LFLAGS +=
 QMAKE_LFLAGS_DEBUG += -fvisibility=hidden
 
 # Source and header files

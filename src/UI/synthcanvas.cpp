@@ -8,7 +8,7 @@ SynthCanvas::SynthCanvas(SynthModel& synth)
     synth.addListener(this);
     addChildComponent(m_menu);
 
-    for(auto element : NodeCatalog::getCategories())
+    for(auto element : NodeCatalog::categories())
     {
         if(element.first.isEmpty())
         {

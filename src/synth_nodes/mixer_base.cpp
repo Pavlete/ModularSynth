@@ -83,4 +83,9 @@ void Mixer::input2AmplitudeChanged(int input2Amplitude)
 	m_settingsChanged = true;
 }
 
+std::unique_ptr<AudioNode> Mixer::clone()
+{
+    return std::make_unique<Mixer>(*this);
+}
+
 

@@ -13,8 +13,8 @@ void Mixer::updateSettings()
 	if(m_settingsChanged)
 	{        
         m_settingsChanged = false;
-        m_input1attenuation = Decibels::decibelsToGain<float>(m_input1Amplitude.load());
-        m_input2attenuation = Decibels::decibelsToGain<float>(m_input2Amplitude.load());
+        m_input1attenuation = Decibels::decibelsToGain<float>(m_input1Amplitude);
+        m_input2attenuation = Decibels::decibelsToGain<float>(m_input2Amplitude);
 	}
 }
 
@@ -27,14 +27,7 @@ void Mixer::process()
 
     auto SignalOutputBuffer = getOutputData(OutputBufferIndex);
 
-    if(!SignalOutputBuffer)
-	{
-		return;
-	}
-
-    SignalOutputBuffer->clear();
-
-	//Processing goes here
+    //Processing goes here
 
     for(int i = 0; i < SignalOutputBuffer->sampleCount(); i++)
     {
@@ -54,8 +47,8 @@ void Mixer::process()
             input2Left = Input2Buffer->sample(1, i) * m_input2attenuation;
         }
 
-        SignalOutputBuffer->addSample(0,i, input1Right + input2Right);
-        SignalOutputBuffer->addSample(1,i, input1Left + input2Left);
+        SignalOutputBuffer->setSample(0,i, input1Right + input2Right);
+        SignalOutputBuffer->setSample(1,i, input1Left + input2Left);
     }
 }
 

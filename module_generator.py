@@ -8,7 +8,6 @@ class Settings:
 		self.default = settDict['default']
 
 
-
 class Module:
 	def __init__(self, modDict):
 		self.name = modDict['name']
@@ -19,6 +18,51 @@ class Module:
 		settings = modDict['settings']
 		for settDict in settings:
 			self.settings.append (Settings(settDict))	
+
+	def modulesFromYAML(fileName):
+		with open(fileName, 'r') as stream:
+			try:
+				modules = yaml.load(stream)
+			except yaml.YAMLError as exc:
+				print(exc)
+
+		return modules['modules']
+
+
+	def generateHeader(self, stream):
+		stream.write('#pragma once\n\n')
+		stream.write('#include "../UI/common/juceaudionode.h"\n#include "../proccess_graph/audionode.h"\n\n')
+		self.generateModelHeader(stream)
+		stream.write("//------------------//\n\n")
+		self.generateAudioModuleHeader(stream)
+		stream.write("//------------------//\n\n")
+		self.generateUIModuleHeader(stream)
+		stream.write('\n')
+
+
+
+	def generateBaseSource(self, stream):
+		stream.write('#include "{0}.h"\n\n'.format(self.name.lower()))
+		stream.write('#include "../data_models/nodefactory.h"\n\n')
+
+		self.generateBaseNamespace(stream)
+		stream.write("//------------------//\n\n")
+		self.generateModelSource(stream)
+		stream.write("//------------------//\n\n")
+		self.generateAudioModuleBaseSource(stream)
+		stream.write('\n')
+
+
+
+	def generateSource(self, stream):
+		stream.write('#include "{0}.h"\n\n#include "nodefactory.h"\n\n'.format(self.name.lower()))
+
+		self.generateNamespace(stream)
+		stream.write("//------------------//\n\n")
+		self.generateAudioModuleSource(stream)
+		stream.write("//------------------//\n\n")
+		self.generateUIModuleSource(stream)
+		stream.write('\n')
 
 
 
@@ -60,14 +104,11 @@ class Module:
 			stream.write('{2} {0}_Model::get{1}() const\n{{\n'.format(self.name, setting.name.capitalize(), setting.type))
 			stream.write('\treturn m_tree.getProperty({0}, Default{0});\n}}\n\n'.format(setting.name.capitalize()))
 
-
 		stream.write('std::function<std::unique_ptr<AudioNode> ()> {0}_Model::getAudioFactory()\n{{\n'.format(self.name))
 		stream.write('\treturn [&](){{return std::make_unique<{0}>(this->shared_from_this());}};\n}}\n\n'.format(self.name))
 
-
 		stream.write('std::function<std::unique_ptr<JuceAudioNode> ()> {0}_Model::getUIFactory()\n{{\n'.format(self.name))
 		stream.write('\treturn [&](){{return std::make_unique<{0}_GUI>(this->shared_from_this());}};\n}}\n\n'.format(self.name))
-
 
 
 
@@ -100,7 +141,6 @@ class Module:
 
 
 
-
 	def generateAudioModuleBaseSource(self, stream):
 		stream.write('{0}::{0}(const std::shared_ptr<{0}_Model>& model)\n'.format(self.name))
 		stream.write('\t: AudioNode ({0}, {1})\n'.format(len(self.inputs), len(self.outputs)))
@@ -114,7 +154,6 @@ class Module:
 		for setting in self.settings:
 			stream.write('void {0}::{1}Changed({2} {1})\n{{\n'.format(self.name, setting.name, setting.type))
 			stream.write('\tm_{0} = {0};\n\tm_settingsChanged = true;\n}}\n\n'.format(setting.name, setting.name.capitalize()))		
-
 
 
 
@@ -147,13 +186,11 @@ class Module:
 
 
 
-
 	def generateUIModuleSource(self, stream):
 		stream.write('{0}_GUI::{0}_GUI(const std::shared_ptr<{0}_Model>& model)\n'.format(self.name))
 		stream.write('\t: JuceAudioNode (model, {0}, {1})\n'.format(len(self.inputs), len(self.outputs)))
 		stream.write('\t, m_model (model)\n{\n\t//Here add components and listener\n}\n\n')
 		stream.write('void {0}_GUI::setContent(Rectangle<int> &r)\n{{\n\t//Here set components geometry\n}}\n\n'.format(self.name))
-
 
 
 
@@ -173,48 +210,6 @@ class Module:
 
 
 
-
-	def generateHeader(self, stream):
-		stream.write('#pragma once\n\n')
-		stream.write('#include "../UI/common/juceaudionode.h"\n#include "../proccess_graph/audionode.h"\n\n')
-		self.generateModelHeader(stream)
-		stream.write("//------------------//\n\n")
-		self.generateAudioModuleHeader(stream)
-		stream.write("//------------------//\n\n")
-		self.generateUIModuleHeader(stream)
-		stream.write('\n')
-
-
-
-
-	def generateBaseSource(self, stream):
-		stream.write('#include "{0}.h"\n\n'.format(self.name.lower()))
-		stream.write('#include "../data_models/nodefactory.h"\n\n')
-
-		self.generateBaseNamespace(stream)
-		stream.write("//------------------//\n\n")
-		self.generateModelSource(stream)
-		stream.write("//------------------//\n\n")
-		self.generateAudioModuleBaseSource(stream)
-		stream.write('\n')
-
-
-
-
-	def generateSource(self, stream):
-		stream.write('#include "{0}.h"\n\n#include "nodefactory.h"\n\n'.format(self.name.lower()))
-
-		self.generateNamespace(stream)
-		stream.write("//------------------//\n\n")
-		self.generateAudioModuleSource(stream)
-		stream.write("//------------------//\n\n")
-		self.generateUIModuleSource(stream)
-		stream.write('\n')
-
-
-
-
-
 	def generateCode (self, path):
 		with open(path + self.name.lower() + ".h", 'w') as stream:
 			self.generateHeader(stream)
@@ -226,19 +221,15 @@ class Module:
 			self.generateSource(stream)
 
 	
+def main():	
+	
+	for module in Module.modulesFromYAML("Modules.yaml"):
+		module = Module(module)
+		module.generateCode("./")
 
-with open("Modules.yaml", 'r') as stream:
-    try:
-        modules = yaml.load(stream)
 
-    except yaml.YAMLError as exc:
-        print(exc)
-
-for moduledict in modules['modules']:
-	module = Module(moduledict)
-	path = './src/synth_nodes/' + module.name.lower() + '.h'
-	if not os.path.isfile(path):
-		module.generateCode("./src/synth_nodes/")
+if __name__ == "__main__":
+    main()
 
 
 
